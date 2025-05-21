@@ -1,0 +1,55 @@
+/*
+ 修改诗词作者字体大小
+*/
+div#poem_info {
+    font-size: 1rem !important
+  }
+/*
+修改字体，换成自己已经安装的字体
+*/
+div#card-poem{
+    font-family: 'KaiTi' !important;
+}
+div#poem_sentence {
+    background: transparent !important;
+    font-size: 1.2rem !important;
+    margin-bottom: 0rem !important;
+}
+div#poem_dynasty {
+    color: var(--heo-secondtext) !important; 
+    background: transparent !important
+}
+/* div.card-content {
+    --anzhiyu-main: #002FA7 !important;
+    --anzhiyu-theme-op: #f2b94b23 !important;
+    --anzhiyu-theme-op-deep: #000000 !important;
+} */
+div#aside-content >.card-widget.card-info::before {
+    background: -webkit-linear-gradient(115deg, #002FA7, #000000, #002FA7, #000000);
+    background: -moz-linear-gradient(115deg, #002FA7, #000000, #002FA7, #000000);
+    background: -o-linear-gradient(115deg, #002FA7, #000000, #002FA7, #000000);
+    background: -ms-linear-gradient(115deg, #002FA7, #000000, #002FA7, #000000);
+    background: linear-gradient(-25deg, #002FA7, #000000, #002FA7, #000000);
+    background-size: 400%;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    content: '';
+    -webkit-animation: gradient 15s ease infinite;
+    -moz-animation: gradient 15s ease infinite;
+    -o-animation: gradient 15s ease infinite;
+    -ms-animation: gradient 15s ease infinite;
+    animation: gradient 15s ease infinite;
+}
+
+[data-theme="dark"] a.categoryButton.blue {
+    background: linear-gradient(to right, rgb(32, 146, 129), rgb(46, 98, 64)) 0% 0% / 200%;
+}
+[data-theme="dark"] a.categoryButton.red {
+    background: linear-gradient(to right, rgb(57, 155, 12), rgb(154, 145, 95)) 0% 0% / 200%;
+}
+[data-theme="dark"] a.categoryButton.green {
+    background: linear-gradient(to right, rgb(134, 43, 190), rgb(143, 27, 14)) 0% 0% / 200%;
+}
