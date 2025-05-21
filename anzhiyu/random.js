@@ -1,3 +1,3 @@
-var posts=["2025/05/19/nuxt3项目使用docker部署在华为云上/","2025/05/21/ubuntu22-04安装docker/","2025/05/21/ubuntu22-04安装编译OpenCV/","2025/05/19/git指南/","2025/05/19/vscode与cmake/","2025/05/20/安卓项目进行模型推理/","2025/05/19/vscode与clangd/","2025/05/19/安装cuda和pytorch/","2025/05/21/搭建Nginx-FLV流媒体服务器/","2025/05/19/课题组网站开发记录/","2025/05/19/安卓项目集成python环境/","2025/05/21/搭建Nginx-RTMP流媒体服务器/","2025/05/20/逆向破解加密爬取音乐实战/"];function toRandomPost(){
+var posts=["2025/05/19/git指南/","2025/05/21/ubuntu22-04安装docker/","2025/05/19/nuxt3项目使用docker部署在华为云上/","2025/05/19/vscode与clangd/","2025/05/21/ubuntu22-04安装编译OpenCV/","2025/05/20/安卓项目进行模型推理/","2025/05/19/vscode与cmake/","2025/05/19/安装cuda和pytorch/","2025/05/19/安卓项目集成python环境/","2025/05/21/搭建Nginx-FLV流媒体服务器/","2025/05/21/搭建Nginx-RTMP流媒体服务器/","2025/05/20/逆向破解加密爬取音乐实战/","2025/05/19/课题组网站开发记录/"];function toRandomPost(){
     pjax.loadUrl('/'+posts[Math.floor(Math.random() * posts.length)]);
   };
