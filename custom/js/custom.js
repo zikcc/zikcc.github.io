@@ -48,10 +48,6 @@ class ResourceLoader {
         console.warn('未找到 #post-top-bg 元素');
         return;
       }
-      const menuDarkmodeText = document.querySelector(".menu-darkmode-text");
-      if (menuDarkmodeText.textContent == "深色模式") {
-        return;
-      }
       // 使用 WebP 格式优化加载
       imgElement.src = 'https://zikcc.oss-cn-beijing.aliyuncs.com/img/transparent.webp';
       

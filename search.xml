@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>嵌入式Linux开发面试题-1</title>
+      <link href="/2025/05/21/%E5%B5%8C%E5%85%A5%E5%BC%8FLinux%E5%BC%80%E5%8F%91%E9%9D%A2%E8%AF%95%E9%A2%98-1/"/>
+      <url>/2025/05/21/%E5%B5%8C%E5%85%A5%E5%BC%8FLinux%E5%BC%80%E5%8F%91%E9%9D%A2%E8%AF%95%E9%A2%98-1/</url>
+      
+        <content type="html"><![CDATA[<h2 id="嵌入式linux开发面试题-1"><a class="markdownIt-Anchor" href="#嵌入式linux开发面试题-1"></a> 嵌入式Linux开发面试题-1</h2><ol><li>嵌入式Linux系统与标准Linux系统的核心区别是什么?<br />嵌入式Linux系统针对特定的硬件裁剪内核，强调实时性、低功耗和小型化，通常搭配 BusyBox 等精简工具链。标准的Linux面向通用计算，功能更全面但资源占用高。</li><li>Linux内核架构分为哪几层? 简述各层的功能。<br />分为四级架构：<ul><li>硬件子系统: 管理中断、存储设备驱动(UART/SD)</li><li>核心中介层: 虚拟内存管理、内核态调度器。</li><li>应用支持层: 提供系统调用接口和程序库。</li><li>任务管理层: 处理进程调度和资源分配。</li></ul></li><li>设备树在嵌入式Linux中的作用是什么？<br />设备树以结构化的数据描述硬件的配置(如外设地址、中断号)，实现硬件和驱动解耦，避免内核重新编译即可适配不同硬件。</li><li>解释交叉编译的概念及其必要性。<br />交叉编译器指在开发主机(x86)上生成目标平台(如ARM)的可执行文件。<br />必要性:<ol><li>嵌入式设备资源有限，无法本地编译。</li><li>开发机性能强，提升编译效率。</li></ol></li><li>嵌入式Linux驱动开发的基本步骤有哪些？<ol><li>定义设备与驱动的接口(如字符设备)</li><li>编写驱动代码并编译成内核模块</li><li>修改设备树添加节点绑定驱动</li><li>加载模块并测试硬件功能</li></ol></li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> 嵌入式 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> C++ </tag>
+            
+            <tag> C </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>搭建Nginx-FLV流媒体服务器</title>
       <link href="/2025/05/21/%E6%90%AD%E5%BB%BANginx-FLV%E6%B5%81%E5%AA%92%E4%BD%93%E6%9C%8D%E5%8A%A1%E5%99%A8/"/>
       <url>/2025/05/21/%E6%90%AD%E5%BB%BANginx-FLV%E6%B5%81%E5%AA%92%E4%BD%93%E6%9C%8D%E5%8A%A1%E5%99%A8/</url>
@@ -32,9 +59,9 @@
             
             <tag> HLS </tag>
             
-            <tag> HTTP-FLV </tag>
-            
             <tag> FFmpeg </tag>
+            
+            <tag> HTTP-FLV </tag>
             
         </tags>
       
@@ -183,6 +210,8 @@
             
             <tag> OpenCV </tag>
             
+            <tag> Pytorch </tag>
+            
             <tag> Android </tag>
             
             <tag> Python </tag>
@@ -190,8 +219,6 @@
             <tag> TFlite </tag>
             
             <tag> TensorFlow </tag>
-            
-            <tag> Pytorch </tag>
             
         </tags>
       
@@ -251,9 +278,9 @@
       
         <tags>
             
-            <tag> Pytorch </tag>
-            
             <tag> Cuda </tag>
+            
+            <tag> Pytorch </tag>
             
         </tags>
       
@@ -361,9 +388,9 @@
       
         <tags>
             
-            <tag> Docker </tag>
-            
             <tag> Nuxt3 </tag>
+            
+            <tag> Docker </tag>
             
         </tags>
       
