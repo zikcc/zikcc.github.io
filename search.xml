@@ -4,11 +4,11 @@
   
     
     <entry>
-      <title>嵌入式Linux开发面试题-1</title>
-      <link href="/2025/05/21/%E5%B5%8C%E5%85%A5%E5%BC%8FLinux%E5%BC%80%E5%8F%91%E9%9D%A2%E8%AF%95%E9%A2%98-1/"/>
-      <url>/2025/05/21/%E5%B5%8C%E5%85%A5%E5%BC%8FLinux%E5%BC%80%E5%8F%91%E9%9D%A2%E8%AF%95%E9%A2%98-1/</url>
+      <title>嵌入式Linux开发面试题-2</title>
+      <link href="/2025/05/22/%E5%B5%8C%E5%85%A5%E5%BC%8FLinux%E5%BC%80%E5%8F%91%E9%9D%A2%E8%AF%95%E9%A2%98-2/"/>
+      <url>/2025/05/22/%E5%B5%8C%E5%85%A5%E5%BC%8FLinux%E5%BC%80%E5%8F%91%E9%9D%A2%E8%AF%95%E9%A2%98-2/</url>
       
-        <content type="html"><![CDATA[<h2 id="嵌入式linux开发面试题-1"><a class="markdownIt-Anchor" href="#嵌入式linux开发面试题-1"></a> 嵌入式Linux开发面试题-1</h2><ol><li>嵌入式Linux系统与标准Linux系统的核心区别是什么?<br />嵌入式Linux系统针对特定的硬件裁剪内核，强调实时性、低功耗和小型化，通常搭配 BusyBox 等精简工具链。标准的Linux面向通用计算，功能更全面但资源占用高。</li><li>Linux内核架构分为哪几层? 简述各层的功能。<br />分为四级架构：<ul><li>硬件子系统: 管理中断、存储设备驱动(UART/SD)</li><li>核心中介层: 虚拟内存管理、内核态调度器。</li><li>应用支持层: 提供系统调用接口和程序库。</li><li>任务管理层: 处理进程调度和资源分配。</li></ul></li><li>设备树在嵌入式Linux中的作用是什么？<br />设备树以结构化的数据描述硬件的配置(如外设地址、中断号)，实现硬件和驱动解耦，避免内核重新编译即可适配不同硬件。</li><li>解释交叉编译的概念及其必要性。<br />交叉编译器指在开发主机(x86)上生成目标平台(如ARM)的可执行文件。<br />必要性:<ol><li>嵌入式设备资源有限，无法本地编译。</li><li>开发机性能强，提升编译效率。</li></ol></li><li>嵌入式Linux驱动开发的基本步骤有哪些？<ol><li>定义设备与驱动的接口(如字符设备)</li><li>编写驱动代码并编译成内核模块</li><li>修改设备树添加节点绑定驱动</li><li>加载模块并测试硬件功能</li></ol></li></ol>]]></content>
+        <content type="html"><![CDATA[<h2 id="嵌入式linux开发面试题-2"><a class="markdownIt-Anchor" href="#嵌入式linux开发面试题-2"></a> 嵌入式Linux开发面试题-2</h2><ol><li>指针与引用的核心区别？项目中如何应用？<ul><li>区别：<ul><li>指针是变量存储地址，可重指向其他对象；引用是别名，绑定后不可更改。</li><li>指针可为空(nullptr), 引用必须绑定有效对象。</li></ul></li><li>项目关联：<br />在OpenCV图像处理中，使用指针传递大型图像数据矩阵(如cv::Mat*)避免拷贝；引用用于函数参数传递(如 const cv::Mat&amp;)保证安全访问。<br />例如:<ul><li>使用指针:  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">proccessImage</span><span class="params">(cv::Mat* img)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 假设对图像进行灰度化处理</span></span><br><span class="line">    cv::<span class="built_in">cvColor</span>(*img, *img, cv::COLOR_BGR2GRAY);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>不加const修饰时，可改变指针指向，和指向的值。<br />常量指针(const cv::Mat* img)：不能通过该指针修改指针指向的值。<br />指针常量(cv::Mat* const img)：不能修改指针的指向(也就是指针指向的地址不能变)</li><li>使用引用:  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">proccessImage</span><span class="params">(<span class="type">const</span> cv::Mat&amp; img)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 灰度化处理</span></span><br><span class="line">    cv::Mat grayImg;</span><br><span class="line">    cv::<span class="built_in">cvtColor</span>(img, grayImg, cv::COLOR_BGR2GRAY);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li></ul>最佳实践:<ul><li>如果只是函数参数传递，优先使用 const cv::Mat&amp;（更安全、更简洁）</li><li>如果需要处理 nullptr (例如void proccessImage(const cv::Mat* img = nullptr) {} ) 或动态切换对象，使用 const cv::Mat*。</li></ul><blockquote><p>常量指针(const cv::Mat* img)是否一定能保证指向的值不会被改变？<br />不一定！const cv::Mat* img（指向常量的指针）只能保证不能通过该指针修改数据，但原始数据仍可能被其他方式修改。</p></blockquote></li></ul></li><li>const 关键字在函数参数和成员函数中的作用？<ul><li>参数: const T&amp; 防止修改输入数据(如传感器的原始数据)。</li><li>成员函数: void func() const 承诺不修改对象状态(如线程安全的配置类), 表示只读。<br />例如:  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Config</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> width_;</span><br><span class="line">    <span class="type">int</span> height_;</span><br><span class="line">    <span class="keyword">mutable</span> <span class="type">int</span> accessCount_;   <span class="comment">// 可被 const 函数修改</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// const 成员函数，承诺不修改对象状态</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">printConfig</span><span class="params">()</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">        <span class="comment">// width_ = 100;    // 错误，不能修改非 mutable 成员</span></span><br><span class="line">        accessCount_++;     <span class="comment">// 正确，mutable成员可修改</span></span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;Width: &quot;</span> &lt;&lt; width_ &lt;&lt; <span class="string">&quot;, Height: &quot;</span> &lt;&lt; height_ &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>返回非 const 指针/引用是危险的  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">BadExample</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::vector&lt;<span class="type">int</span>&gt; data_;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 危险：const 函数暴露了可修改的内部数据</span></span><br><span class="line">    <span class="function">std::vector&lt;<span class="type">int</span>&gt;&amp; <span class="title">getData</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> data_; &#125;  <span class="comment">// 不要这样做！</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>const 成员函数和非 const 成员函数可以重载</li><li>项目关联: 在模型推理的类中，const修饰推理函数确保权重不被意外修改。</li></ul></li><li>手写单例模式(线程安全版) <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Singleton</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">static</span> Singleton&amp; <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="type">static</span> Singleton instance;  <span class="comment">// 即使多次访问这个函数，instance也只会初始化一次。</span></span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">Singleton</span>(<span class="type">const</span> Singleton&amp;) = <span class="keyword">delete</span>;   <span class="comment">// 禁止拷贝构造</span></span><br><span class="line">    Singleton&amp; <span class="keyword">operator</span>=(<span class="type">const</span> Singleton&amp;) = <span class="keyword">delete</span>;    <span class="comment">// 禁用赋值构造</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">Singleron</span>() = <span class="keyword">default</span>;  <span class="comment">// 私有构造函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>项目关联: 用于全局配置管理(如摄像头参数加载)，避免多线程重复初始化。</li></ol>]]></content>
       
       
       <categories>
@@ -20,9 +20,36 @@
       
         <tags>
             
+            <tag> C++ </tag>
+            
             <tag> C </tag>
             
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>嵌入式Linux开发面试题-1</title>
+      <link href="/2025/05/21/%E5%B5%8C%E5%85%A5%E5%BC%8FLinux%E5%BC%80%E5%8F%91%E9%9D%A2%E8%AF%95%E9%A2%98-1/"/>
+      <url>/2025/05/21/%E5%B5%8C%E5%85%A5%E5%BC%8FLinux%E5%BC%80%E5%8F%91%E9%9D%A2%E8%AF%95%E9%A2%98-1/</url>
+      
+        <content type="html"><![CDATA[<h2 id="嵌入式linux开发面试题-1"><a class="markdownIt-Anchor" href="#嵌入式linux开发面试题-1"></a> 嵌入式Linux开发面试题-1</h2><ol><li><p>C语言中 volatile 关键字的作用是什么? 举一个必须使用 volatile 的实际场景。</p><ul><li>作用: 告诉编译器不要优化对该变量的访问，每次必须从内存读取最新的值。</li><li>场景: 多线程共享变量、硬件寄存器访问(状态寄存器)、中断服务程序(ISR)中修改的全局变量。</li></ul></li><li><p>解释结构体内存对齐的规则，并给出优化结构体大小的两种方法。</p><ul><li>对齐原则: 成员偏移量是自身大小或编译器对齐值的整数倍，结构体总大小为最大对齐值的整数倍。</li><li>优化方法:<ol><li>按成员大小降序排列 (double -&gt; int -&gt; char)</li><li>使用 #pragma pack(1) 强制1字节对齐(牺牲性能换空间)</li></ol></li></ul></li><li><p>FreeRTOS中任务有哪几种状态? 如何让一个任务从阻塞态切换到就绪态?</p><ul><li>状态: 运行态(Runing)、就绪态(Ready)、阻塞态(Blocked)、挂起态(Suspended)。</li><li>切换方法: 通过信号量释放(xSemaphoreGive)、任务通知(xTaskNotify)、延迟到期(vTaskDelay)。</li></ul></li><li><p>IIC总线的上拉电阻阻值选择不当会导致什么问题? 如何计算合理的阻值</p><ul><li>问题: 阻值过小 -&gt; 电流过大损坏器件；阻值过大 -&gt; 上升沿过慢导致通信失败。</li><li>计算: 根据总线电容© 和上升时间($$t_r$$) 计算，公式: $$ R_max = t_r / (0.8473 * C) $$ (例: 100pF电容 + 1us 上升时间 -&gt; $$R_max \approx 1.18 k\Omega$$)</li></ul></li><li><p>嵌入式Linux系统与标准Linux系统的核心区别是什么?<br />嵌入式Linux系统针对特定的硬件裁剪内核，强调实时性、低功耗和小型化，通常搭配 BusyBox 等精简工具链。标准的Linux面向通用计算，功能更全面但资源占用高。</p></li><li><p>Linux内核架构分为哪几层? 简述各层的功能。<br />分为四级架构：</p><ul><li>硬件子系统: 管理中断、存储设备驱动(UART/SD)</li><li>核心中介层: 虚拟内存管理、内核态调度器。</li><li>应用支持层: 提供系统调用接口和程序库。</li><li>任务管理层: 处理进程调度和资源分配。</li></ul></li><li><p>设备树在嵌入式Linux中的作用是什么？<br />设备树以结构化的数据描述硬件的配置(如外设地址、中断号)，实现硬件和驱动解耦，避免内核重新编译即可适配不同硬件。</p></li><li><p>解释交叉编译的概念及其必要性。<br />交叉编译器指在开发主机(x86)上生成目标平台(如ARM)的可执行文件。<br />必要性:</p><ol><li>嵌入式设备资源有限，无法本地编译。</li><li>开发机性能强，提升编译效率。</li></ol></li><li><p>嵌入式Linux驱动开发的基本步骤有哪些？</p><ol><li>定义设备与驱动的接口(如字符设备)</li><li>编写驱动代码并编译成内核模块</li><li>修改设备树添加节点绑定驱动</li><li>加载模块并测试硬件功能</li></ol></li><li><p>设备树 (Device Tree) 中如何定义一个 GPIO 按键中断？写出对应的DTS代码片段。</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&amp;gpio0 &#123;    <span class="comment">// 引用GPIO控制器节点 (例如某个芯片的GPIO0模块) (不可更改，厂商定义)</span></span><br><span class="line">    button &#123;    <span class="comment">// 定义一个字节点，表示按键设备 (节点名称，可自定义命名)</span></span><br><span class="line">        compatible = <span class="string">&quot;gpio-keys&quot;</span>;   <span class="comment">// 告诉内核，此设备使用 gpio-keys 驱动 (不可更改)</span></span><br><span class="line">        button1 &#123;   <span class="comment">// 定义第一个按键的具体参数 (字节点名称，可更改)</span></span><br><span class="line">            label = <span class="string">&quot;USER_BUTTON&quot;</span>;  <span class="comment">// 按键的标签，方便调试 (value 可更改，自定义)</span></span><br><span class="line">            gpios = &lt;&amp;gpio0 <span class="number">14</span> GPIO_ACTIVE_LOW&gt;;    <span class="comment">// 使用GPIO0的14号引脚，低电平有效 (不能改)</span></span><br><span class="line">            linux, code = &lt;KEY_ENTER&gt;;  <span class="comment">// 按下时生成&quot;回车键事件&quot; (key不能改，value可在内核的事件定义中查找更改)</span></span><br><span class="line">            interrupts-extended = &lt;&amp;gpio0 <span class="number">14</span> IRQ_TYPE_EDGE_FALLING&gt;;    <span class="comment">// 中断触发方式，下降沿触发 (key 不能改，value须适配)</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> 嵌入式 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
             <tag> C++ </tag>
+            
+            <tag> C </tag>
             
         </tags>
       
@@ -49,9 +76,9 @@
       
         <tags>
             
-            <tag> Docker </tag>
-            
             <tag> Linux </tag>
+            
+            <tag> Docker </tag>
             
             <tag> Nginx </tag>
             
@@ -88,9 +115,9 @@
       
         <tags>
             
-            <tag> Docker </tag>
-            
             <tag> Linux </tag>
+            
+            <tag> Docker </tag>
             
             <tag> Nginx </tag>
             
@@ -123,9 +150,9 @@
       
         <tags>
             
-            <tag> Docker </tag>
-            
             <tag> Linux </tag>
+            
+            <tag> Docker </tag>
             
         </tags>
       
@@ -384,9 +411,9 @@
       
         <tags>
             
-            <tag> Nuxt3 </tag>
-            
             <tag> Docker </tag>
+            
+            <tag> Nuxt3 </tag>
             
         </tags>
       
