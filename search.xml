@@ -20,9 +20,9 @@
       
         <tags>
             
-            <tag> C++ </tag>
-            
             <tag> C </tag>
+            
+            <tag> C++ </tag>
             
         </tags>
       
@@ -49,9 +49,9 @@
       
         <tags>
             
-            <tag> Linux </tag>
-            
             <tag> Docker </tag>
+            
+            <tag> Linux </tag>
             
             <tag> Nginx </tag>
             
@@ -88,9 +88,9 @@
       
         <tags>
             
-            <tag> Linux </tag>
-            
             <tag> Docker </tag>
+            
+            <tag> Linux </tag>
             
             <tag> Nginx </tag>
             
@@ -123,9 +123,9 @@
       
         <tags>
             
-            <tag> Linux </tag>
-            
             <tag> Docker </tag>
+            
+            <tag> Linux </tag>
             
         </tags>
       
@@ -210,15 +210,13 @@
             
             <tag> OpenCV </tag>
             
-            <tag> Pytorch </tag>
-            
-            <tag> Android </tag>
+            <tag> Java </tag>
             
             <tag> Python </tag>
             
-            <tag> TFlite </tag>
+            <tag> Pytorch </tag>
             
-            <tag> TensorFlow </tag>
+            <tag> TFlite </tag>
             
         </tags>
       
@@ -238,8 +236,6 @@
           
           <category> 环境搭建 </category>
           
-          <category> 安卓 </category>
-          
           <category> 视觉 </category>
           
       </categories>
@@ -249,9 +245,9 @@
             
             <tag> OpenCV </tag>
             
-            <tag> Python </tag>
-            
             <tag> Java </tag>
+            
+            <tag> Python </tag>
             
             <tag> Chaquopy </tag>
             
