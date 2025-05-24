@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>GDB_调试指南</title>
+      <link href="/2025/05/24/GDB-%E8%B0%83%E8%AF%95%E6%8C%87%E5%8D%97/"/>
+      <url>/2025/05/24/GDB-%E8%B0%83%E8%AF%95%E6%8C%87%E5%8D%97/</url>
+      
+        <content type="html"><![CDATA[<p>以下是一份详细的 <strong>GDB 调试指南</strong>，涵盖基础到高级用法，适用于 Linux C/C++ 程序调试（包括多线程、核心转储分析等场景）。</p><hr /><h2 id="1-gdb-基础使用"><a class="markdownIt-Anchor" href="#1-gdb-基础使用"></a> <strong>1. GDB 基础使用</strong></h2><h3 id="11-启动-gdb"><a class="markdownIt-Anchor" href="#11-启动-gdb"></a> <strong>1.1 启动 GDB</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 调试可执行文件</span></span><br><span class="line">gdb ./your_program</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调试正在运行的进程</span></span><br><span class="line">gdb -p &lt;PID&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调试核心转储文件（coredump）</span></span><br><span class="line">gdb ./your_program core</span><br></pre></td></tr></table></figure><h3 id="12-常用基础命令"><a class="markdownIt-Anchor" href="#12-常用基础命令"></a> <strong>1.2 常用基础命令</strong></h3><table><thead><tr><th>命令</th><th>缩写</th><th>作用</th></tr></thead><tbody><tr><td><code>run</code></td><td><code>r</code></td><td>启动程序</td></tr><tr><td><code>break &lt;location&gt;</code></td><td><code>b</code></td><td>设置断点（如 <code>b main</code>, <code>b file.cpp:10</code>）</td></tr><tr><td><code>continue</code></td><td><code>c</code></td><td>继续执行到下一个断点</td></tr><tr><td><code>next</code></td><td><code>n</code></td><td>单步执行（不进入函数）</td></tr><tr><td><code>step</code></td><td><code>s</code></td><td>单步执行（进入函数）</td></tr><tr><td><code>print &lt;var&gt;</code></td><td><code>p</code></td><td>打印变量值</td></tr><tr><td><code>backtrace</code></td><td><code>bt</code></td><td>查看调用栈</td></tr><tr><td><code>quit</code></td><td><code>q</code></td><td>退出 GDB</td></tr></tbody></table><hr /><h2 id="2-断点管理"><a class="markdownIt-Anchor" href="#2-断点管理"></a> <strong>2. 断点管理</strong></h2><h3 id="21-设置断点"><a class="markdownIt-Anchor" href="#21-设置断点"></a> <strong>2.1 设置断点</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">b main          <span class="comment"># 在 main 函数开头断点</span></span><br><span class="line">b file.cpp:20   <span class="comment"># 在 file.cpp 的第 20 行断点</span></span><br><span class="line">b *0x4005a6     <span class="comment"># 在内存地址断点（反汇编调试）</span></span><br></pre></td></tr></table></figure><h3 id="22-条件断点"><a class="markdownIt-Anchor" href="#22-条件断点"></a> <strong>2.2 条件断点</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">b foo <span class="keyword">if</span> x &gt; 10   <span class="comment"># 当 x &gt; 10 时在 foo 函数中断</span></span><br></pre></td></tr></table></figure><h3 id="23-查看删除断点"><a class="markdownIt-Anchor" href="#23-查看删除断点"></a> <strong>2.3 查看/删除断点</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">info breakpoints  <span class="comment"># 查看所有断点</span></span><br><span class="line">delete &lt;num&gt;      <span class="comment"># 删除指定编号的断点</span></span><br><span class="line">clear             <span class="comment"># 清除当前行的断点</span></span><br></pre></td></tr></table></figure><hr /><h2 id="3-变量与内存操作"><a class="markdownIt-Anchor" href="#3-变量与内存操作"></a> <strong>3. 变量与内存操作</strong></h2><h3 id="31-查看变量"><a class="markdownIt-Anchor" href="#31-查看变量"></a> <strong>3.1 查看变量</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">p x              <span class="comment"># 打印变量 x</span></span><br><span class="line">p/x x            <span class="comment"># 以十六进制打印</span></span><br><span class="line">p *ptr@10        <span class="comment"># 打印指针 ptr 指向的 10 个元素</span></span><br></pre></td></tr></table></figure><h3 id="32-修改变量"><a class="markdownIt-Anchor" href="#32-修改变量"></a> <strong>3.2 修改变量</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> var x = 5    <span class="comment"># 修改变量 x 的值</span></span><br></pre></td></tr></table></figure><h3 id="33-检查内存"><a class="markdownIt-Anchor" href="#33-检查内存"></a> <strong>3.3 检查内存</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x/8wx 0x400000   <span class="comment"># 查看内存（8 个 4 字节字，十六进制）</span></span><br><span class="line">x/s ptr          <span class="comment"># 打印字符串（直到 &#x27;\0&#x27;）</span></span><br></pre></td></tr></table></figure><hr /><h2 id="4-多线程调试"><a class="markdownIt-Anchor" href="#4-多线程调试"></a> <strong>4. 多线程调试</strong></h2><h3 id="41-线程控制"><a class="markdownIt-Anchor" href="#41-线程控制"></a> <strong>4.1 线程控制</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">info threads     <span class="comment"># 查看所有线程</span></span><br><span class="line">thread &lt;ID&gt;      <span class="comment"># 切换到指定线程</span></span><br><span class="line">b foo thread 2   <span class="comment"># 仅在线程 2 的 foo 函数中断</span></span><br></pre></td></tr></table></figure><h3 id="42-锁定线程调度"><a class="markdownIt-Anchor" href="#42-锁定线程调度"></a> <strong>4.2 锁定线程调度</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> scheduler-locking on  <span class="comment"># 仅当前线程运行（其他暂停）</span></span><br><span class="line"><span class="built_in">set</span> scheduler-locking off <span class="comment"># 恢复线程自由切换</span></span><br></pre></td></tr></table></figure><h3 id="43-死锁调试"><a class="markdownIt-Anchor" href="#43-死锁调试"></a> <strong>4.3 死锁调试</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">catch syscall pthread_mutex_lock  <span class="comment"># 捕获锁调用</span></span><br><span class="line">thread apply all bt              <span class="comment"># 查看所有线程堆栈</span></span><br></pre></td></tr></table></figure><hr /><h2 id="5-核心转储core-dump分析"><a class="markdownIt-Anchor" href="#5-核心转储core-dump分析"></a> <strong>5. 核心转储（Core Dump）分析</strong></h2><h3 id="51-生成-core-dump"><a class="markdownIt-Anchor" href="#51-生成-core-dump"></a> <strong>5.1 生成 Core Dump</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ulimit</span> -c unlimited  <span class="comment"># 允许生成 core 文件</span></span><br><span class="line">./your_program       <span class="comment"># 崩溃后生成 core</span></span><br></pre></td></tr></table></figure><h3 id="52-分析-core"><a class="markdownIt-Anchor" href="#52-分析-core"></a> <strong>5.2 分析 Core</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gdb ./your_program core</span><br><span class="line">bt                   <span class="comment"># 查看崩溃时的调用栈</span></span><br><span class="line">p &lt;var&gt;              <span class="comment"># 检查变量状态</span></span><br></pre></td></tr></table></figure><hr /><h2 id="6-高级功能"><a class="markdownIt-Anchor" href="#6-高级功能"></a> <strong>6. 高级功能</strong></h2><h3 id="61-反汇编调试"><a class="markdownIt-Anchor" href="#61-反汇编调试"></a> <strong>6.1 反汇编调试</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">disassemble          <span class="comment"># 查看当前函数的汇编代码</span></span><br><span class="line">si / ni              <span class="comment"># 汇编级单步执行（step/next instruction）</span></span><br></pre></td></tr></table></figure><h3 id="62-自定义命令"><a class="markdownIt-Anchor" href="#62-自定义命令"></a> <strong>6.2 自定义命令</strong></h3><p>在 <code>~/.gdbinit</code> 中定义快捷命令：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">define print_array</span><br><span class="line">  <span class="built_in">set</span> <span class="variable">$i</span> = 0</span><br><span class="line">  <span class="keyword">while</span> <span class="variable">$i</span> &lt; <span class="variable">$arg0</span></span><br><span class="line">    <span class="built_in">printf</span> <span class="string">&quot;arr[%d] = %d\n&quot;</span>, <span class="variable">$i</span>, arr[<span class="variable">$i</span>]</span><br><span class="line">    <span class="built_in">set</span> <span class="variable">$i</span> = <span class="variable">$i</span> + 1</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure><p>使用时：<code>print_array 10</code>。</p><h3 id="63-反向调试reverse-debugging"><a class="markdownIt-Anchor" href="#63-反向调试reverse-debugging"></a> <strong>6.3 反向调试（Reverse Debugging）</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">record full          <span class="comment"># 开始记录执行流程</span></span><br><span class="line">reverse-step         <span class="comment"># 反向执行</span></span><br></pre></td></tr></table></figure><hr /><h2 id="7-调试优化后的代码"><a class="markdownIt-Anchor" href="#7-调试优化后的代码"></a> <strong>7. 调试优化后的代码</strong></h2><p>如果程序编译时用了 <code>-O2</code>，变量可能被优化掉，需：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 禁用优化或添加调试符号</span></span><br><span class="line">gcc -O0 -g program.c</span><br></pre></td></tr></table></figure><hr /><h2 id="8-实用技巧"><a class="markdownIt-Anchor" href="#8-实用技巧"></a> <strong>8. 实用技巧</strong></h2><ul><li><strong>日志输出</strong>：<br /><code>printf &quot;x=%d\n&quot;, x</code>（在 GDB 中直接打印日志）。</li><li><strong>跳过代码块</strong>：<br /><code>until &lt;line&gt;</code>（执行到指定行）。</li><li><strong>调试子进程</strong>：<br /><code>set follow-fork-mode child</code>（跟踪子进程）。</li></ul><hr /><h2 id="9-推荐学习资源"><a class="markdownIt-Anchor" href="#9-推荐学习资源"></a> <strong>9. 推荐学习资源</strong></h2><ul><li><strong>官方手册</strong>：<code>gdb -tui</code>（文本界面模式）或 <code>info gdb</code>。</li><li><strong>图形化前端</strong>：<ul><li><code>cgdb</code>（增强型命令行 GDB）</li><li><code>ddd</code>（图形化调试器）。</li></ul></li></ul><hr /><p>掌握这些命令后，你可以高效诊断段错误、死锁、数据竞争等问题。对于复杂项目，建议结合 <strong>VS Code + GDB 插件</strong> 提升效率。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 笔记 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> GDB </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>每日Linux_Cpp-3</title>
       <link href="/2025/05/22/%E6%AF%8F%E6%97%A5Linux-Cpp-3/"/>
       <url>/2025/05/22/%E6%AF%8F%E6%97%A5Linux-Cpp-3/</url>
@@ -119,9 +144,9 @@
             
             <tag> HLS </tag>
             
-            <tag> HTTP-FLV </tag>
-            
             <tag> FFmpeg </tag>
+            
+            <tag> HTTP-FLV </tag>
             
         </tags>
       
@@ -268,15 +293,15 @@
       
         <tags>
             
-            <tag> OpenCV </tag>
-            
             <tag> Java </tag>
             
             <tag> Python </tag>
             
-            <tag> TFlite </tag>
+            <tag> OpenCV </tag>
             
             <tag> Pytorch </tag>
+            
+            <tag> TFlite </tag>
             
         </tags>
       
@@ -303,11 +328,11 @@
       
         <tags>
             
-            <tag> OpenCV </tag>
-            
             <tag> Java </tag>
             
             <tag> Python </tag>
+            
+            <tag> OpenCV </tag>
             
             <tag> Chaquopy </tag>
             
@@ -334,9 +359,9 @@
       
         <tags>
             
-            <tag> Pytorch </tag>
-            
             <tag> Cuda </tag>
+            
+            <tag> Pytorch </tag>
             
         </tags>
       
