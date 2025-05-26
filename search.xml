@@ -4,6 +4,209 @@
   
     
     <entry>
+      <title>自定义协议栈服务器开发-5</title>
+      <link href="/2025/05/26/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91-5/"/>
+      <url>/2025/05/26/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91-5/</url>
+      
+        <content type="html"><![CDATA[<h2 id="扩展多协议支持"><a class="markdownIt-Anchor" href="#扩展多协议支持"></a> 扩展多协议支持</h2><h2 id="当前架构设计"><a class="markdownIt-Anchor" href="#当前架构设计"></a> 当前架构设计</h2><h3 id="11-模块分层以及职责"><a class="markdownIt-Anchor" href="#11-模块分层以及职责"></a> 1.1 模块分层以及职责</h3><figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+----------------------+        +----------------------+        +----------------------+  </span><br><span class="line">| 客户端（<span class="type">TCP</span> 发送）   | ----▶  | 主线程：epoll <span class="type">Reactor</span> | ----▶  | 线程池：<span class="type">Task</span> 处理      |  </span><br><span class="line">+----------------------+        +----------------------+        +----------------------+  </span><br></pre></td></tr></table></figure><ol><li><p><strong>客户端</strong></p><ul><li>建立 TCP 连接到服务器 <code>IP:port</code>。</li><li>将自定义 <code>Packet</code> 数据通过 <code>send()</code> 推送。</li></ul></li><li><p><strong>主线程（Reactor）</strong></p><ul><li><strong>初始化 epoll</strong>，注册 <code>listen_fd</code>（TCP监听套接字）。</li><li><strong>Accept</strong>：当 <code>listen_fd</code> 可读 (<code>EPOLLIN</code>) 时，调用 <code>accept()</code> 获取 <code>conn_fd</code>，并将其加入 epoll 监听。</li><li><strong>事件分发</strong>：对 <code>conn_fd</code> 上的 <code>EPOLLIN</code> / <code>EPOLLOUT</code> 事件，封装成 <code>EventTask</code>，并提交到线程池处理队列。</li></ul></li><li><p><strong>线程池（Worker）</strong></p><ul><li><strong>Task队列</strong>：主线程投递任务，Worker 从队列中拉取。</li><li><strong>Protocol 处理</strong>：调用 <code>Protocol</code> 对象的 <code>tryReceivePacket(Packet&amp;)</code> 或 <code>flushSendBuffer()</code>，执行底层 I/O 并管理 <code>send_buffer_</code> / <code>recv_buffer_</code>。</li><li><strong>Packet 解析</strong>：<code>Protocol::parseFromBuffer()</code> 将流缓冲区数据拆分成完整 <code>Packet</code>。</li><li><strong>业务回调</strong>：将解析后的 <code>Packet</code> 分发给上层逻辑（例如消息路由）。</li></ul></li></ol><h3 id="22-核心类和接口"><a class="markdownIt-Anchor" href="#22-核心类和接口"></a> 2.2 核心类和接口</h3><h4 id="221-iprotocol-接口"><a class="markdownIt-Anchor" href="#221-iprotocol-接口"></a> 2.2.1 <code>IProtocol</code> 接口</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">IProtocol</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">enum class</span> <span class="title class_">ReadStatus</span> &#123; OK, NeedRetry, Error &#125;;</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">IProtocol</span>() = <span class="keyword">default</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> ReadStatus <span class="title">tryReceivePacket</span><span class="params">(Packet&amp; pkt)</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">enqueuePacket</span><span class="params">(<span class="type">const</span> Packet&amp; pkt)</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">bool</span> <span class="title">flushSendBuffer</span><span class="params">(<span class="type">int</span>&amp; saved_errno)</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">bool</span> <span class="title">hasPendingSendData</span><span class="params">()</span> <span class="type">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure><h4 id="222-tcpprotocol-实现"><a class="markdownIt-Anchor" href="#222-tcpprotocol-实现"></a> 2.2.2 <code>TcpProtocol</code> 实现</h4><ul><li><strong>底层 I/O</strong>：<code>recv()</code> / <code>send()</code>。</li><li><strong>缓冲管理</strong>：维护 <code>recv_buffer_</code> 用于流式读取，<code>send_buffer_</code> 用于缓存待发数据。</li><li><strong>协议解析</strong>：<code>parseFromBuffer()</code> 根据固定头 (magic + length + checksum) 提取完整包。</li></ul><h4 id="223-threadpool"><a class="markdownIt-Anchor" href="#223-threadpool"></a> 2.2.3 <code>ThreadPool</code></h4><ul><li><strong>线程数量</strong>：可配置，典型为 CPU 核数 * 2。</li><li><strong>队列</strong>：无界或有界队列，防止过载时回压。</li><li><strong>任务类型</strong>：封装 <code>conn_fd</code> 和事件类型，回调 <code>IProtocol</code> 方法。</li></ul><hr /><h2 id="三-当前数据流与事件流程"><a class="markdownIt-Anchor" href="#三-当前数据流与事件流程"></a> 三、当前数据流与事件流程</h2><ol><li><p><strong>客户端发送</strong></p><ul><li>客户端将 <code>Packet::serialize()</code> 得到的字节流，调用 <code>send()</code> 发往服务器。</li></ul></li><li><p><strong>服务器 Accept</strong></p><ul><li>主线程通过 epoll 捕获 <code>listen_fd</code> 的新连接事件，建立 <code>conn_fd</code> 并注册。</li></ul></li><li><p><strong>数据到达</strong></p><ul><li>客户端数据到达 <code>conn_fd</code>，epoll 触发 <code>EPOLLIN</code>。</li></ul></li><li><p><strong>事件分发</strong></p><ul><li>主线程封装 <code>EventTask(conn_fd, EPOLLIN)</code>，投递到线程池。</li></ul></li><li><p><strong>协议层读取</strong></p><ul><li>Worker 调用 <code>TcpProtocol::tryReceivePacket(pkt)</code>，内部 <code>recv()</code> 数据至 <code>recv_buffer_</code>，并尝试 <code>parseFromBuffer()</code>。</li></ul></li><li><p><strong>Packet 回调</strong></p><ul><li>成功解析后，得到 <code>Packet</code> 对象，交给上层 <code>onPacketReceived(pkt)</code> 处理。</li></ul></li><li><p><strong>响应发送</strong></p><ul><li>如果有回复，调用 <code>Protocol::enqueuePacket()</code>，接着 <code>flushSendBuffer()</code> 写数据，可能触发 <code>EPOLLOUT</code> 事件。</li></ul></li></ol><hr /><h2 id="四-存在的局限与瓶颈"><a class="markdownIt-Anchor" href="#四-存在的局限与瓶颈"></a> 四、存在的局限与瓶颈</h2><ol><li><strong>单协议支持</strong>：仅限 TCP，不支持无连接或多播协议（UDP）。</li><li><strong>Packet 类型固定</strong>：仅支持一种包格式，无法灵活扩展命令/心跳/文件传输等。</li><li><strong>同步 I/O</strong>：目前基于 <code>recv/send</code>，阻塞或半阻塞模式下吞吐受限。</li><li><strong>扩展困难</strong>：增加新协议或包类型需侵入式修改现有 <code>Protocol</code> 类。</li></ol><hr /><h2 id="五-未来重构方案"><a class="markdownIt-Anchor" href="#五-未来重构方案"></a> 五、未来重构方案</h2><h3 id="51-多协议支持"><a class="markdownIt-Anchor" href="#51-多协议支持"></a> 5.1 多协议支持</h3><ul><li><strong>策略模式</strong>：定义 <code>IProtocol</code>，实现 <code>TcpProtocol</code>、<code>UdpProtocol</code>、<code>QuicProtocol</code> 等。</li><li><strong>工厂模式</strong>：根据配置或 URI Scheme (<code>tcp://</code>、<code>udp://</code>) 动态创建 <code>IProtocol</code> 实例。</li><li><strong>异步 I/O</strong>：引入 <code>Boost.Asio</code> 或 <code>io_uring</code>，统一封装多协议异步操作。</li></ul><h3 id="52-多包类型"><a class="markdownIt-Anchor" href="#52-多包类型"></a> 5.2 多包类型</h3><ul><li><strong>IPacket 接口</strong>：定义 <code>IPacket</code> 基类，不同业务 <code>VideoPacket</code>、<code>ControlPacket</code>、<code>HeartbeatPacket</code> 继承。</li><li><strong>PacketFactory</strong>：维护 <code>typeId</code>→<code>IPacket</code> 反序列化函数映射，解耦协议与包结构。</li><li><strong>协议层处理</strong>：<code>IProtocol::tryReceivePacket(shared_ptr&lt;IPacket&gt;&amp; pkt)</code>，协议只负责流切包，上层负责反序列化。</li></ul><h3 id="53-架构扩展与优化"><a class="markdownIt-Anchor" href="#53-架构扩展与优化"></a> 5.3 架构扩展与优化</h3><ul><li><strong>多进程 + SO_REUSEPORT</strong>：提升并发连接接入能力，减少锁竞争。</li><li><strong>零拷贝</strong>：结合 <code>splice()</code>, <code>vmsplice()</code> 或 <code>io_uring</code> 实现文件/网络零拷贝。</li><li><strong>负载均衡</strong>：使用 LVS 或 Nginx 前置负载均衡，将流量分发至多实例；</li><li><strong>配置中心</strong>：使用 Consul/Eureka 管理协议版本、端口和包格式。</li></ul><hr /><h2 id="六-结语"><a class="markdownIt-Anchor" href="#六-结语"></a> 六、结语</h2><p>本报告聚焦<strong>网络协议层面</strong>，从当前 TCP 自定义协议服务器的 Reactor + 线程池架构、数据流程到核心类设计进行了详述，并给出支持多协议、多包类型的重构方案。通过引入设计模式与高性能 I/O，可以构建一套<strong>高可用、可扩展</strong>的通用协议服务器框架。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 开发记录 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> C++ </tag>
+            
+            <tag> C </tag>
+            
+            <tag> Linux </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>自定义协议栈服务器开发-4</title>
+      <link href="/2025/05/26/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91-4/"/>
+      <url>/2025/05/26/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91-4/</url>
+      
+        <content type="html"><![CDATA[<h2 id="一-ioctl通用设备控制接口"><a class="markdownIt-Anchor" href="#一-ioctl通用设备控制接口"></a> 一、<code>ioctl</code>：通用设备控制接口</h2><h3 id="1-什么是-ioctlfd-request-argp"><a class="markdownIt-Anchor" href="#1-什么是-ioctlfd-request-argp"></a> 1. 什么是 <code>ioctl(fd, request, argp)</code>？</h3><ul><li><code>fd</code>：之前用 <code>open()</code> 得到的设备文件描述符（这里是 <code>/dev/video0</code>）。</li><li><code>request</code>：一个数字常量，告诉内核“我要对这个设备做什么操作”。</li><li><code>argp</code>：指向一个结构体或整数的指针，存放或接收额外的参数／返回值。</li></ul><blockquote><p>简单类比：</p><ul><li><code>read(fd, buf, len)</code>：从设备读数据</li><li><code>write(fd, buf, len)</code>：向设备写数据</li><li><code>ioctl(fd, XXX, &amp;y)</code>：向设备发送“指令”XXX，可能携带或返回数据y</li></ul></blockquote><h3 id="2-v4l2-常用的几个-ioctl-请求request"><a class="markdownIt-Anchor" href="#2-v4l2-常用的几个-ioctl-请求request"></a> 2. V4L2 常用的几个 <code>ioctl</code> 请求（request）</h3><table><thead><tr><th>请求宏</th><th>作用</th></tr></thead><tbody><tr><td><code>VIDIOC_REQBUFS</code></td><td>“请为我申请 N 个缓冲区”（参数是 <code>v4l2_requestbuffers</code>）</td></tr><tr><td><code>VIDIOC_QUERYBUF</code></td><td>“告诉我第 i 个缓冲区的大小和在内核空间的偏移量”（参数是 <code>v4l2_buffer</code>）</td></tr><tr><td><code>VIDIOC_QBUF</code></td><td>“把编号为 i 的空缓冲区放入内核的采集队列”，让驱动往里写新帧</td></tr><tr><td><code>VIDIOC_DQBUF</code></td><td>“从内核队列里取出一个已写满帧的缓冲区”，交给用户进程处理</td></tr><tr><td><code>VIDIOC_STREAMON</code></td><td>“启动流模式”，开始不停往缓冲区写入帧</td></tr><tr><td><code>VIDIOC_STREAMOFF</code></td><td>“停止流模式”，停止往缓冲区写帧</td></tr></tbody></table><ul><li><strong><code>VIDIOC_REQBUFS</code></strong>：告诉驱动“我想用 mmap 模式，一次准备读取 4 帧数据，快给我分配 4 块内核缓冲区”。</li><li><strong><code>VIDIOC_QUERYBUF</code></strong>：对每块缓冲区执行此命令后，<code>v4l2_buffer</code> 结构体会告诉你：<ul><li><code>length</code>：这块缓存的字节大小</li><li><code>m.offset</code>：这块缓存相对于设备文件起始处的偏移量</li></ul></li><li><strong><code>VIDIOC_QBUF</code></strong>：把一块空的、已经 <code>QUERYBUF</code> 过的缓存放到“待写入”队列里。驱动拿到后会往里写下一帧。</li><li><strong><code>VIDIOC_STREAMON</code> / <code>STREAMOFF</code></strong>：启动或停止“流”模式，让驱动开始/停止循环地往这些队列缓存里写入／停止写入帧。</li><li><strong><code>VIDIOC_DQBUF</code></strong>：从“已写入”队列里取出一个缓存，告诉你它是哪块（<code>buf.index</code>），以及写入了多少字节（<code>buf.bytesused</code>），用户层就能处理这帧数据。</li></ul><h2 id="二-mmap内存映射让用户进程直接访问缓冲区"><a class="markdownIt-Anchor" href="#二-mmap内存映射让用户进程直接访问缓冲区"></a> 二、<code>mmap</code>：内存映射，让用户进程直接访问缓冲区</h2><h3 id="1-为什么要用-mmap-而不是-read"><a class="markdownIt-Anchor" href="#1-为什么要用-mmap-而不是-read"></a> 1. 为什么要用 <code>mmap</code> 而不是 <code>read</code>？</h3><ul><li><strong><code>read()</code></strong>：每次都得内核→用户空间拷贝一次，效率较低。</li><li><strong><code>mmap()</code></strong>：把内核分配的那块物理内存“映射”到用户进程地址空间，同一块内存，内核和用户共用一份，不用额外拷贝，速度更快。</li></ul><h3 id="2-mmap-怎么用"><a class="markdownIt-Anchor" href="#2-mmap-怎么用"></a> 2. <code>mmap</code> 怎么用？</h3><figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">cpp复制编辑<span class="keyword">void</span>* addr = mmap(</span><br><span class="line">    nullptr,       <span class="comment">// 让系统自动选择一个合适的起始地址</span></span><br><span class="line">    <span class="built_in">length</span>,        <span class="comment">// 映射大小（字节数）</span></span><br><span class="line">    PROT_READ      <span class="comment">// 用户进程可读</span></span><br><span class="line">    | PROT_WRITE,  <span class="comment">// 用户进程可写（对 MMAP 这种设备来说一般写入无用，但必须有）</span></span><br><span class="line">    MAP_SHARED,    <span class="comment">// 多个进程（内核/用户）共享这块映射，写到它会通知内核</span></span><br><span class="line">    fd,            <span class="comment">// 哪个文件或设备</span></span><br><span class="line">    <span class="built_in">offset</span>         <span class="comment">// 从文件(设备)的哪个偏移量开始映射</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure><ul><li><strong><code>length</code></strong>：我们之前用 <code>VIDIOC_QUERYBUF</code> 得到过，它告诉这个缓冲区有多大。</li><li><strong><code>offset</code></strong>：同样来自 <code>VIDIOC_QUERYBUF</code>，表示内核里这块缓冲区相对于设备文件开始的位置。</li><li>返回值 <code>addr</code>：之后你就可以像读普通内存一样读 <code>addr[0]</code>、<code>addr[1]</code>…，读到的就是摄像头给你写的帧数据。</li></ul><h3 id="3-映射后你需要做两件事"><a class="markdownIt-Anchor" href="#3-映射后你需要做两件事"></a> 3. 映射后，你需要做两件事：</h3><ol><li><strong>入队</strong>（<code>VIDIOC_QBUF</code>）——让驱动知道“这块内存我准备好了，快写新帧进来”。</li><li><strong>取队</strong>（<code>VIDIOC_DQBUF</code>）——告诉驱动“我处理完了，把写好的帧拿给我”，此时 <code>buf.index</code> 告诉你是哪块，<code>bytesused</code> 告诉你写了多少字节，你就用 <code>mmap</code> 返回的指针去拷贝或解码。</li></ol><p>最终，<strong>零拷贝</strong>、高并发地完成了“生产（驱动写帧）—消费（用户进程读帧）”的循环。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 开发记录 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> C++ </tag>
+            
+            <tag> C </tag>
+            
+            <tag> Linux </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>自定义协议栈服务器开发-3</title>
+      <link href="/2025/05/26/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91-3/"/>
+      <url>/2025/05/26/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91-3/</url>
+      
+        <content type="html"><![CDATA[<h2 id="代码流程一步步来看"><a class="markdownIt-Anchor" href="#代码流程一步步来看"></a> 🧩 代码流程一步步来看：</h2><h3 id="1-启动服务器maincpp"><a class="markdownIt-Anchor" href="#1-启动服务器maincpp"></a> 1. 启动服务器（<code>main.cpp</code>）：</h3><figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cpp复制编辑<span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="built_in">Server</span> <span class="title">server</span><span class="params">(<span class="number">8080</span>)</span></span>;</span><br><span class="line">    server.<span class="built_in">run</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h3 id="2-初始化监听-socketserversetupserversocket"><a class="markdownIt-Anchor" href="#2-初始化监听-socketserversetupserversocket"></a> 2. 初始化监听 socket（<code>Server::setupServerSocket</code>）：</h3><ul><li>创建 socket</li><li>绑定端口</li><li>设置非阻塞</li><li>开始监听</li></ul><h3 id="3-epoll-注册监听-socket"><a class="markdownIt-Anchor" href="#3-epoll-注册监听-socket"></a> 3. epoll 注册监听 socket：</h3><figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cpp</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">复制编辑</span><br><span class="line"><span class="function"><span class="title">epoll_ctl</span>(<span class="params">epoll_fd, EPOLL_CTL_ADD, listen_fd, ...</span>)</span>;</span><br></pre></td></tr></table></figure><p>告诉 epoll：“有新连接来了请通知我。”</p><hr /><h3 id="4-主循环serverrun"><a class="markdownIt-Anchor" href="#4-主循环serverrun"></a> 4. 主循环（<code>Server::run()</code>）：</h3><figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cpp复制编辑while (true) &#123;</span><br><span class="line">    <span class="built_in">epoll_wait</span>(...);  <span class="comment">// 阻塞等待事件</span></span><br><span class="line">    for (事件 in events) &#123;</span><br><span class="line">        if (事件来自 listen_fd) &#123;</span><br><span class="line">            <span class="built_in">accept</span>() 接受新连接，并注册到 epoll</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            有客户端发消息，调用 Connection::<span class="built_in">onReadable</span>()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><hr /><h3 id="5-每个连接怎么处理connection"><a class="markdownIt-Anchor" href="#5-每个连接怎么处理connection"></a> 5. 每个连接怎么处理（<code>Connection</code>）：</h3><ul><li><code>onReadable()</code> 从 socket 读取数据</li><li>把数据丢到线程池处理（比如解析、计算、构造回复）</li><li>线程池的线程处理后调用回调函数发送响应</li></ul><hr /><h3 id="6-线程池作用"><a class="markdownIt-Anchor" href="#6-线程池作用"></a> 6. 线程池作用：</h3><figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">cpp</span>复制编辑thread_pool-&gt;</span>enqueue([=] &#123;</span><br><span class="line">    <span class="comment">// 处理业务逻辑</span></span><br><span class="line">    send(fd, <span class="string">&quot;Hello&quot;</span>, <span class="number">5</span>, <span class="number">0</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure><p>这样就不会卡住主线程，能并发处理很多连接。</p><hr /><h2 id="总结一句话解释整个流程"><a class="markdownIt-Anchor" href="#总结一句话解释整个流程"></a> 💡 总结：一句话解释整个流程</h2><blockquote><p><strong>主线程只管 epoll + 分发，线程池负责干活（处理数据并回复），所有 socket 都是非阻塞的。</strong></p></blockquote><pre><code>             [客户端1]                |             [客户端2]                |             [客户端3]                |               ...                |             [客户端N]                |    ╔═════════════════╗    ║          内核 (TCP/IP栈)     ║    ║                             ║    ║  listen_fd (监听 socket)     ║◄─── bind(), listen()    ║          │                  ║    ║          │连接到达时         ║    ║          ▼                  ║    ║  conn_fd1 (连接 socket) ◄───── 客户端1接入    ║  conn_fd2 (连接 socket) ◄───── 客户端2接入    ║  conn_fd3 (连接 socket) ◄───── 客户端3接入    ║        ...                  ║    ╚═════════════════╝                │           [epoll 监听多个 conn_fd]                │        [线程池处理业务逻辑]</code></pre><h2 id="一步步解释结构组成"><a class="markdownIt-Anchor" href="#一步步解释结构组成"></a> 🔍 一步步解释结构组成：</h2><h3 id="1-listen_fd监听-socket"><a class="markdownIt-Anchor" href="#1-listen_fd监听-socket"></a> 1. <code>listen_fd</code>：监听 socket</h3><ul><li>你用 <code>socket()</code>, <code>bind()</code>, <code>listen()</code> 创建的最初的 socket。</li><li>只负责监听端口是否有新的连接进来。</li><li>当有客户端来连接，就会触发 <code>epoll</code> 事件，你再用 <code>accept()</code> 把连接拿出来。</li></ul><h3 id="2-conn_fd已连接-socket"><a class="markdownIt-Anchor" href="#2-conn_fd已连接-socket"></a> 2. <code>conn_fd</code>：已连接 socket</h3><ul><li>每次 <code>accept()</code> 返回一个新的 socket，这就是你和客户端之间通信的 socket。</li><li>每个客户端一个连接，<strong>一个 fd</strong>。</li><li>你用 <code>read()/write()</code> 或 <code>recv()/send()</code> 来与该客户端进行数据交换。</li></ul><h3 id="3-epoll-监听这些连接-fd"><a class="markdownIt-Anchor" href="#3-epoll-监听这些连接-fd"></a> 3. <code>epoll</code> 监听这些连接 fd</h3><ul><li><code>epoll</code> 用来监听 <code>conn_fd1</code>, <code>conn_fd2</code>, …, 发生事件（如可读/可写）。</li><li>一旦某个 fd 有数据，epoll 告诉你，然后你就用线程池去处理。</li></ul><h3 id="4-线程池做处理不阻塞主线程"><a class="markdownIt-Anchor" href="#4-线程池做处理不阻塞主线程"></a> 4. 线程池做处理，不阻塞主线程</h3><ul><li>主线程只负责接收连接、触发 epoll。</li><li>每当有数据到达，就把这个事件扔进线程池处理。</li></ul><h2 id="为什么这种设计适合高并发"><a class="markdownIt-Anchor" href="#为什么这种设计适合高并发"></a> ✅ 为什么这种设计适合高并发？</h2><table><thead><tr><th>优势</th><th>说明</th></tr></thead><tbody><tr><td>高性能 epoll</td><td>支持百万连接，O(1) 的事件通知</td></tr><tr><td>每个客户端独立 fd</td><td>无共享，不影响彼此</td></tr><tr><td>非阻塞 IO</td><td>不卡线程</td></tr><tr><td>线程池</td><td>避免线程爆炸，任务处理更平滑</td></tr><tr><td>可扩展性强</td><td>后期可加入定时器、连接池、协程等机制</td></tr></tbody></table><h2 id="举个更直观的例子"><a class="markdownIt-Anchor" href="#举个更直观的例子"></a> 🛠 举个更直观的例子：</h2><p>假设你写了一个 Web 服务器监听 8080：</p><figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> listen_fd = <span class="keyword">socket</span>(...);</span><br><span class="line"><span class="keyword">bind</span>(listen_fd, ...);</span><br><span class="line"><span class="keyword">listen</span>(listen_fd, SOMAXCONN);</span><br></pre></td></tr></table></figure><p>你用 epoll 监听这个 <code>listen_fd</code>，发现有连接来：</p><figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int conn_fd = accept(listen_fd, ...);  <span class="comment">// 得到客户端 socket</span></span><br><span class="line"><span class="function"><span class="title">epoll_ctl</span>(<span class="params">epfd, EPOLL_CTL_ADD, conn_fd, ...</span>)</span>; <span class="comment">// 加入 epoll 监听</span></span><br></pre></td></tr></table></figure><p>从现在开始，<code>conn_fd</code> 就是你跟某个客户端通信的通道，你用 <code>read(conn_fd, buf, len)</code> 来收消息，用 <code>write(conn_fd, buf, len)</code> 发消息。</p><p>当你有成千上万个连接时，你 epoll 管理的 fd 列表就像：</p><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">epoll 监听：</span><br><span class="line"><span class="deletion">- conn_fd1</span></span><br><span class="line"><span class="deletion">- conn_fd2</span></span><br><span class="line"><span class="deletion">- conn_fd3</span></span><br><span class="line"><span class="deletion">- ...</span></span><br><span class="line"><span class="deletion">- conn_fd9999</span></span><br></pre></td></tr></table></figure><p>而且所有连接共用同一个 epoll 和线程池，不需要开成千个线程。</p><hr /><h2 id="总结一句话"><a class="markdownIt-Anchor" href="#总结一句话"></a> 📌 总结一句话：</h2><blockquote><p><strong>服务器本身只有一个监听 socket（listen_fd），但每个客户端连接都会创建一个独立的通信 socket（conn_fd），由 epoll 来统一管理这些 fd 的事件，并用线程池异步处理它们。</strong></p></blockquote><h3 id="重构方案概览"><a class="markdownIt-Anchor" href="#重构方案概览"></a> <strong>重构方案概览</strong></h3><table><thead><tr><th style="text-align:center">模块</th><th style="text-align:center">原问题</th><th style="text-align:center">重构方法</th><th style="text-align:center">代码示例</th><th style="text-align:center">不改的坏处</th><th style="text-align:center">改动的好处</th></tr></thead><tbody><tr><td style="text-align:center"><strong>协议层</strong></td><td style="text-align:center">无发送缓冲区导致数据丢失</td><td style="text-align:center">拆分<code>send_packet</code>为数据入队和实际发送</td><td style="text-align:center"><code>enqueuePacket()</code> + <code>flushSendBuffer()</code></td><td style="text-align:center">数据可能丢失</td><td style="text-align:center">支持部分发送和重试机制</td></tr><tr><td style="text-align:center"><strong>协议层</strong></td><td style="text-align:center">无接收缓冲区导致粘包处理错误</td><td style="text-align:center">引入接收缓冲区</td><td style="text-align:center"><code>tryReceivePacket()</code></td><td style="text-align:center">数据解析失败</td><td style="text-align:center">正确处理TCP流式数据</td></tr><tr><td style="text-align:center"><strong>连接层</strong></td><td style="text-align:center">直接操作裸指针导致线程竞争</td><td style="text-align:center">使用智能指针+互斥锁</td><td style="text-align:center"><code>std::shared_ptr&lt;Connection&gt;</code></td><td style="text-align:center">数据竞争导致崩溃</td><td style="text-align:center">线程安全读写</td></tr><tr><td style="text-align:center"><strong>事件循环</strong></td><td style="text-align:center">递归调用<code>handleWrite</code></td><td style="text-align:center">通过<code>EPOLLOUT</code>事件触发发送</td><td style="text-align:center"><code>triggerWriteEvent()</code></td><td style="text-align:center">栈溢出风险</td><td style="text-align:center">解耦读写逻辑</td></tr><tr><td style="text-align:center"><strong>资源管理</strong></td><td style="text-align:center">手动关闭socket易遗漏</td><td style="text-align:center">RAII包装文件描述符</td><td style="text-align:center"><code>ScopedFileDescriptor</code></td><td style="text-align:center">资源泄漏</td><td style="text-align:center">自动释放资源</td></tr></tbody></table><h4 id="阻塞模式-vs-非阻塞模式的核心区别"><a class="markdownIt-Anchor" href="#阻塞模式-vs-非阻塞模式的核心区别"></a> <strong>阻塞模式 vs 非阻塞模式的核心区别</strong></h4><table><thead><tr><th style="text-align:center"><strong>特征</strong></th><th style="text-align:center"><strong>阻塞模式</strong></th><th style="text-align:center"><strong>非阻塞模式</strong></th></tr></thead><tbody><tr><td style="text-align:center"><strong>read/write 行为</strong></td><td style="text-align:center">操作未完成时线程挂起，直到数据就绪或超时</td><td style="text-align:center">操作立即返回，若数据未就绪返回错误码（<code>EAGAIN</code> 或 <code>EWOULDBLOCK</code>）</td></tr><tr><td style="text-align:center"><strong>适用场景</strong></td><td style="text-align:center">简单客户端、低并发服务端</td><td style="text-align:center">高并发服务端（如 Nginx、Redis）</td></tr><tr><td style="text-align:center"><strong>资源占用</strong></td><td style="text-align:center">每个连接需独占线程，线程数随连接数线性增长</td><td style="text-align:center">单线程可处理数千连接（通过事件驱动）</td></tr></tbody></table><h3 id="阻塞-vs-非阻塞模式的核心区别"><a class="markdownIt-Anchor" href="#阻塞-vs-非阻塞模式的核心区别"></a> <strong>阻塞 vs 非阻塞模式的核心区别</strong></h3><table><thead><tr><th style="text-align:center"><strong>socket 模式</strong></th><th style="text-align:center"><strong><code>read</code> 行为</strong></th><th style="text-align:center"><strong>代码表现</strong></th></tr></thead><tbody><tr><td style="text-align:center"><strong>阻塞模式</strong></td><td style="text-align:center">若内核缓冲区无数据，<code>read</code> <strong>挂起线程</strong>，直到数据到达或超时。</td><td style="text-align:center">线程卡在 <code>read</code> 处，无法处理其他任务。</td></tr><tr><td style="text-align:center"><strong>非阻塞模式</strong></td><td style="text-align:center">若内核缓冲区无数据，<code>read</code> <strong>立即返回错误</strong>，设置 <code>errno</code> 为 <code>EAGAIN</code> 或 <code>EWOULDBLOCK</code>。</td><td style="text-align:center">线程继续执行，需检查 <code>errno</code> 并重试。</td></tr></tbody></table><h3 id="为何必须使用接收缓冲区"><a class="markdownIt-Anchor" href="#为何必须使用接收缓冲区"></a> <strong>为何必须使用接收缓冲区？</strong></h3><h4 id="tcp-协议的核心特性"><a class="markdownIt-Anchor" href="#tcp-协议的核心特性"></a> <strong>TCP 协议的核心特性</strong></h4><ul><li><strong>流式协议</strong>：无消息边界，数据像水流一样连续。</li><li><strong>可能分片</strong>：一个应用层数据包可能被拆分为多个TCP段发送。</li></ul><h4 id="示例粘包与半包"><a class="markdownIt-Anchor" href="#示例粘包与半包"></a> <strong>示例：粘包与半包</strong></h4><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">客户端发送： <span class="selector-attr">[Packet1]</span><span class="selector-attr">[Packet2]</span></span><br><span class="line">服务端接收： <span class="selector-attr">[Pa]</span><span class="selector-attr">[cket1Packet2]</span><span class="selector-attr">[...]</span> （分多次到达）</span><br></pre></td></tr></table></figure><ul><li><strong>无缓冲区</strong>：无法正确识别 <code>Packet1</code> 和 <code>Packet2</code> 的边界。</li><li><strong>有缓冲区</strong>：积累数据，直到能提取完整包。</li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> 开发记录 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> C++ </tag>
+            
+            <tag> C </tag>
+            
+            <tag> Linux </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>自定义协议栈服务器开发-2</title>
+      <link href="/2025/05/26/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91-2/"/>
+      <url>/2025/05/26/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91-2/</url>
+      
+        <content type="html"><![CDATA[<h2 id="自定义协议栈服务器开发-2"><a class="markdownIt-Anchor" href="#自定义协议栈服务器开发-2"></a> 自定义协议栈服务器开发-2</h2><h2 id="目标改造为高性能通信架构"><a class="markdownIt-Anchor" href="#目标改造为高性能通信架构"></a> 🎯 目标：改造为高性能通信架构</h2><p>原始架构是：</p><ul><li>🚫 阻塞 I/O（<code>recv/send</code> 会卡住）</li><li>🚫 单线程处理（一个客户端连接就卡住一个线程）</li><li>🚫 同步爬虫、同步协议处理</li></ul><p>目标：</p><p>✅ <strong>非阻塞 I/O</strong><br />✅ <strong>Reactor 模式（epoll）监听连接和可读事件</strong><br />✅ <strong>线程池处理业务逻辑</strong>（如协议解析、爬虫）<br />✅ <strong>主线程永远不阻塞，不做耗时操作</strong></p><h3 id="阻塞的地方在哪"><a class="markdownIt-Anchor" href="#阻塞的地方在哪"></a> ✅ <strong>阻塞的地方在哪？</strong></h3><ol><li><strong>客户端（Client）：</strong><ul><li><code>connect(sock_fd, ...)</code>：会<strong>阻塞</strong>直到连接成功或失败。</li><li><code>recv(...)</code> 或 <code>proto.receive_packet(...)</code>：在没有数据可读时<strong>会阻塞</strong>，直到服务器发送了数据或连接断开。</li><li><code>std::getline(std::cin, input)</code>：会阻塞等待用户输入。</li></ul></li><li><strong>服务器（Server）：</strong><ul><li><code>accept(server_fd, ...)</code>：<strong>阻塞等待客户端连接</strong>，直到某个客户端连接成功才返回。</li><li><code>recv(...)</code> 或 <code>proto.receive_packet(...)</code>：<strong>阻塞</strong>，直到有数据到来，或者客户端断开连接。</li><li><code>send(...)</code> 或 <code>proto.send_packet(...)</code>：在某些情况下（例如发送缓冲区满），也可能<strong>阻塞</strong>。</li></ul></li></ol><p>项目结构</p><figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">project_root<span class="symbol">/</span></span><br><span class="line">├── include<span class="symbol">/</span></span><br><span class="line">│   ├── core<span class="symbol">/</span>               ← 数据结构、协议类（Packet.hpp）</span><br><span class="line">│   ├── net<span class="symbol">/</span>                ← 网络通信（Connection.hpp）</span><br><span class="line">│   ├── threading<span class="symbol">/</span>          ← 线程池（ThreadPool.hpp）</span><br><span class="line">│   ├── vision<span class="symbol">/</span>             ← 图像处理（OpenCV 封装类）</span><br><span class="line">│   └── app<span class="symbol">/</span>                ← 主应用接口（ServerApp.hpp）</span><br><span class="line">│</span><br><span class="line">├── src<span class="symbol">/</span></span><br><span class="line">│   ├── core<span class="symbol">/</span>               ← Packet.cpp、Protocol.cpp</span><br><span class="line">│   ├── net<span class="symbol">/</span>                ← Connection.cpp、ReactorServer.cpp、Client.cpp</span><br><span class="line">│   ├── threading<span class="symbol">/</span>          ← ThreadPool.cpp</span><br><span class="line">│   ├── vision<span class="symbol">/</span>             ← Crawler.cpp（如果做图像处理）、未来的OpenCV功能</span><br><span class="line">│   └── app<span class="symbol">/</span>                ← Server.cpp、App类封装</span><br><span class="line">│</span><br><span class="line">├── main<span class="symbol">/</span></span><br><span class="line">│   └── main.cpp            ← 仅程序启动入口（含 main 函数）</span><br><span class="line">│</span><br><span class="line">├── lib<span class="symbol">/</span>                    ← 用于保存构建输出的 .so<span class="symbol">/.a</span> 文件</span><br><span class="line">├── build<span class="symbol">/</span>                  ← CMake 构建输出（加入 .gitignore）</span><br><span class="line">├── tests<span class="symbol">/</span>                  ← GTest 单元测试</span><br><span class="line">│   ├── PacketTest.cpp</span><br><span class="line">│   └── CMakeLists.txt</span><br><span class="line">│</span><br><span class="line">├── third_party<span class="symbol">/</span>            ← OpenCV<span class="symbol">/GTest</span> 等第三方库</span><br><span class="line">├── CMakeLists.txt          ← 项目主构建入口</span><br><span class="line">├── run.sh                  ← 编译 <span class="operator">+</span> 运行脚本</span><br><span class="line">└── README.md</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure><h2 id="整体目标写一个高性能服务器"><a class="markdownIt-Anchor" href="#整体目标写一个高性能服务器"></a> 🚀 整体目标：写一个<strong>高性能服务器</strong></h2><p>我们要实现一个这样的服务器：</p><ul><li>能同时处理很多客户端连接（比如上千个）。</li><li>每个客户端都可以发消息，服务器处理完后回消息。</li><li>不能阻塞 —— 有一个慢的客户端不应该卡住整个服务器。</li><li>要<strong>充分利用多核 CPU</strong>，用线程池处理逻辑。</li></ul><hr /><h2 id="核心概念一为什么不用传统方式"><a class="markdownIt-Anchor" href="#核心概念一为什么不用传统方式"></a> 🧠 核心概念一：为什么不用传统方式？</h2><p>传统的 <code>accept-read-write</code> 方式大致像这样：</p><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">    <span class="keyword">int</span> client_fd = accept(listen_fd, ...);</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">1024</span>];</span><br><span class="line">    <span class="keyword">read</span>(client_fd, buf, <span class="number">1024</span>);</span><br><span class="line">    <span class="keyword">write</span>(client_fd, response, len);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h3 id="问题"><a class="markdownIt-Anchor" href="#问题"></a> 问题：</h3><ul><li><code>accept</code> 和 <code>read</code> 是阻塞的：如果一个客户端连接了但不发消息，服务器就一直卡住。</li><li>无法同时处理多个客户端（除非开线程/进程，很慢）。</li></ul><hr /><h2 id="核心概念二epoll-是什么"><a class="markdownIt-Anchor" href="#核心概念二epoll-是什么"></a> 🧠 核心概念二：epoll 是什么？</h2><p><code>epoll</code> 是 Linux 下的一个<strong>事件通知机制</strong>，用于同时管理多个文件描述符（比如 socket）。它就像一个“电铃监控中心”，告诉你：</p><blockquote><p>“嘿，哪个 socket 上有人发消息了，你可以去处理了。”</p></blockquote><p>这样，你不用一直 <code>read()</code> 检查每个 socket，而是等着 epoll 通知你哪个客户端“响铃”了（即有事件，比如可读）。</p><h3 id="epoll-流程"><a class="markdownIt-Anchor" href="#epoll-流程"></a> epoll 流程：</h3><ol><li>把监听 socket（listen_fd）和客户端 socket 注册到 epoll。</li><li>等待 <code>epoll_wait()</code> 通知哪个 socket 有事件。</li><li>读取/处理这些事件。</li><li>再回到 <code>epoll_wait()</code>。</li></ol><hr /><h2 id="核心概念三为什么用线程池"><a class="markdownIt-Anchor" href="#核心概念三为什么用线程池"></a> 🧠 核心概念三：为什么用线程池？</h2><ul><li>epoll 是<strong>IO多路复用</strong>，能告诉你“哪个 socket 有消息了”。</li><li>但业务逻辑可能很复杂，不能在主线程里直接处理。</li><li>所以用一个线程池，让多个线程处理“读到的数据”。</li></ul><hr /><h2 id="每个组件的作用"><a class="markdownIt-Anchor" href="#每个组件的作用"></a> 🧱 每个组件的作用：</h2><table><thead><tr><th>文件</th><th>作用</th></tr></thead><tbody><tr><td><code>main.cpp</code></td><td>启动服务器</td></tr><tr><td><code>Server.h/cpp</code></td><td>服务器主逻辑（epoll 注册/等待/事件分发）</td></tr><tr><td><code>Connection.h/cpp</code></td><td>表示一个客户端连接，读取数据后扔到线程池</td></tr><tr><td><code>ThreadPool.h/cpp</code></td><td>多线程任务池，负责处理耗时逻辑</td></tr><tr><td><code>Util.h/cpp</code></td><td>工具函数，比如设置非阻塞</td></tr></tbody></table><hr />]]></content>
+      
+      
+      <categories>
+          
+          <category> 开发记录 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> C++ </tag>
+            
+            <tag> C </tag>
+            
+            <tag> Linux </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>自定义协议栈服务器开发-1</title>
+      <link href="/2025/05/26/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91-1/"/>
+      <url>/2025/05/26/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91-1/</url>
+      
+        <content type="html"><![CDATA[<h2 id="自定义协议栈服务器开发-1"><a class="markdownIt-Anchor" href="#自定义协议栈服务器开发-1"></a> 自定义协议栈服务器开发-1</h2><table><thead><tr><th>文件名</th><th>作用描述</th></tr></thead><tbody><tr><td><code>Packet.hpp/.cpp</code></td><td>定义数据包结构，序列化和反序列化函数</td></tr><tr><td><code>Protocol.hpp/.cpp</code></td><td>网络通信的封装（send/recv）</td></tr><tr><td><code>Server.cpp</code></td><td>TCP服务端，接收客户端消息并回复</td></tr><tr><td><code>Client.cpp</code></td><td>TCP客户端，发送消息并读取服务器回应</td></tr></tbody></table><p>大厂级高性能 TCP 服务端架构思路及示例代码片段，基于 <strong>Reactor 模式 + epoll + 线程池</strong>，把网络 I/O 和业务处理彻底拆开，保证主线程专注于 I/O，所有耗时业务（如爬虫、协议解析）都扔给工作线程去做。</p><h3 id="1-单线程-非阻塞-io"><a class="markdownIt-Anchor" href="#1-单线程-非阻塞-io"></a> ✅ 1. 单线程 + 非阻塞 I/O</h3><p>传统的服务端模型（例如阻塞式 <code>accept-read-write</code>）每个客户端都需要一个线程。假设每个线程消耗 1MB 栈空间，1万连接就需要 10GB 内存，而且线程调度开销极大。</p><p>非阻塞 I/O + epoll 只需要<strong>一个主线程</strong>就可以<strong>同时管理上万连接</strong>。它不会因为某个连接的数据没准备好而阻塞。</p><h3 id="2-epoll-是-o1-的-io-多路复用"><a class="markdownIt-Anchor" href="#2-epoll-是-o1-的-io-多路复用"></a> ✅ 2. epoll 是 O(1) 的 I/O 多路复用</h3><ul><li><code>select</code>/<code>poll</code> 每次都要遍历所有 fd，时间复杂度 O(n)。</li><li><code>epoll</code> 只返回<strong>就绪的文件描述符列表</strong>，时间复杂度接近 O(1)。</li></ul><p>所以 <code>epoll</code> 对大并发连接场景特别高效。</p><h3 id="3-边沿触发edge-triggered减少系统调用"><a class="markdownIt-Anchor" href="#3-边沿触发edge-triggered减少系统调用"></a> ✅ 3. 边沿触发（Edge Triggered）减少系统调用</h3><p>epoll 支持两种模式：</p><ul><li>Level Trigger（水平触发）：数据没读完会一直通知。</li><li><strong>Edge Trigger（边沿触发）</strong>：只在状态变化时通知一次，需要把 buffer 一次读干净。</li></ul><p>这显著减少了 <code>epoll_wait()</code> 的返回次数，降低系统调用频率。</p><h3 id="4-主线程不做业务线程池异步执行逻辑"><a class="markdownIt-Anchor" href="#4-主线程不做业务线程池异步执行逻辑"></a> ✅ 4. 主线程不做业务，线程池异步执行逻辑</h3><p>主线程只管网络事件，不涉及业务计算（如爬虫、数据库等耗时任务），这样它能持续保持高响应性。</p><p>业务线程通过线程池统一调度，充分利用多核 CPU 的并发能力，避免线程频繁创建/销毁的性能浪费。</p><h3 id="5-内存复用和缓冲池可拓展优化"><a class="markdownIt-Anchor" href="#5-内存复用和缓冲池可拓展优化"></a> ✅ 5. 内存复用和缓冲池（可拓展优化）</h3><ul><li>不频繁 new/delete → 对象池（Object Pool）</li><li>避免多线程 malloc/free 抢锁 → Arena 分配器</li><li>提前准备 buffer，提高 cache 命中率</li></ul><h3 id="6-异步写回避免阻塞"><a class="markdownIt-Anchor" href="#6-异步写回避免阻塞"></a> ✅ 6. 异步写回避免阻塞</h3><p>如果你直接在主线程或业务线程里 <code>write()</code> 客户端，可能因为客户端读太慢导致阻塞（内核 send buffer 满）。</p><p>我们这里的做法：</p><ul><li>把写数据加入一个 <code>outbuf</code> 中</li><li>主线程监听 EPOLLOUT 时间再去写</li><li>一次写不完就下次继续</li></ul><p>这样即使写出慢，也不会阻塞主线程或业务线程。</p><h3 id="7-高可扩展性"><a class="markdownIt-Anchor" href="#7-高可扩展性"></a> ✅ 7. 高可扩展性</h3><p>你可以非常轻松地做出扩展：</p><ul><li>✅ 加缓存（如 LRU）</li><li>✅ 加限流（如令牌桶）</li><li>✅ 加负载均衡（Nginx 前置）</li><li>✅ 微服务化部署（爬虫、数据分析、识别模块独立服务）</li></ul><h2 id="总结架构优势一图看懂"><a class="markdownIt-Anchor" href="#总结架构优势一图看懂"></a> 🔧 总结架构优势（一图看懂）</h2><table><thead><tr><th>模块</th><th>技术方案</th><th>好处</th></tr></thead><tbody><tr><td>I/O 多路复用</td><td>epoll + 非阻塞 I/O</td><td>管理上万连接，高性能低开销</td></tr><tr><td>事件处理</td><td>Reactor 模式</td><td>解耦 I/O 与业务，低延迟响应</td></tr><tr><td>并发处理</td><td>线程池</td><td>高并发、稳定、可复用线程资源</td></tr><tr><td>写回机制</td><td>异步写 + 缓冲区</td><td>不阻塞 I/O，不影响主线程性能</td></tr><tr><td>扩展性</td><td>模块化、插件化</td><td>支持微服务、可水平扩展</td></tr></tbody></table><h2 id="现代大厂使用案例对比"><a class="markdownIt-Anchor" href="#现代大厂使用案例对比"></a> 💬 现代大厂使用案例对比</h2><table><thead><tr><th>大厂</th><th>使用模式</th><th>对应点</th></tr></thead><tbody><tr><td>Nginx</td><td>epoll + 非阻塞 + 事件驱动</td><td>完整的 Reactor 模式</td></tr><tr><td>Redis</td><td>单线程 + epoll</td><td>利用 epoll 高效调度请求</td></tr><tr><td>Netty</td><td>Reactor + 线程池 + 编解码器</td><td>和我们这套结构非常相似</td></tr><tr><td>MySQL Proxy</td><td>主线程监听连接 + worker 处理查询</td><td>主从分离的 I/O 与业务处理思想</td></tr></tbody></table>]]></content>
+      
+      
+      <categories>
+          
+          <category> 开发记录 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> C++ </tag>
+            
+            <tag> C </tag>
+            
+            <tag> Linux </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>每日Linux_Cpp导航</title>
+      <link href="/2025/05/26/%E6%AF%8F%E6%97%A5Linux-Cpp%E5%AF%BC%E8%88%AA/"/>
+      <url>/2025/05/26/%E6%AF%8F%E6%97%A5Linux-Cpp%E5%AF%BC%E8%88%AA/</url>
+      
+        <content type="html"><![CDATA[<h2 id="每日linux_cpp导航"><a class="markdownIt-Anchor" href="#每日linux_cpp导航"></a> 每日Linux_Cpp导航</h2><hr /><ol><li><a href="/2025/05/21/%E6%AF%8F%E6%97%A5Linux_Cpp-1/" title="每日Linux_Cpp-1">每日Linux_Cpp-1</a></li><li><a href="/2025/05/22/%E6%AF%8F%E6%97%A5Linux_Cpp-2/" title="每日Linux_Cpp-2">每日Linux_Cpp-2</a></li><li><a href="/2025/05/23/%E6%AF%8F%E6%97%A5Linux-Cpp-3/" title="每日Linux_Cpp-3">每日Linux_Cpp-3</a></li><li><a href="/2025/05/26/%E6%AF%8F%E6%97%A5Linux-Cpp-4/" title="每日Linux_Cpp-4">每日Linux_Cpp-4</a></li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> 面试 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> C++ </tag>
+            
+            <tag> C </tag>
+            
+            <tag> Linux </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>每日Linux_Cpp-4</title>
+      <link href="/2025/05/26/%E6%AF%8F%E6%97%A5Linux-Cpp-4/"/>
+      <url>/2025/05/26/%E6%AF%8F%E6%97%A5Linux-Cpp-4/</url>
+      
+        <content type="html"><![CDATA[<h1 id="每日linux_cpp-4"><a class="markdownIt-Anchor" href="#每日linux_cpp-4"></a> 每日Linux_Cpp-4</h1><hr /><ol><li>虚函数表(vtable)的实现原理及多态性能损耗<ul><li>原理：每个包含虚函数的类会生成一个虚函数表，存储虚函数指针；对象内存首部包含指向该表的指针(vptr)。动态绑定通过运行时查找虚函数表实现。</li><li>性能损耗：多态调用需额外查表跳转(约 1-2 个时钟周期)，嵌入式场景中需权衡灵活性与实时性。</li><li>项目关联：在 OpenCV 图像处理基类中，用虚函数实现不同算法的多态调用(如 FeatureDetector::detect())。</li></ul></li><li>智能指针的线程安全性及 std::shared_ptr 循环引用问题<ul><li>线程安全：std::shared_ptr 的引用计数原子操作保证线程安全，但指向的堆对象需额外同步。</li><li>循环引用：若 A 持有 B 的shared_ptr, B 也持有 A 的 shared_ptr, 引用计数永不归零(两个气球相互牵引，彼此都无法被释放)。</li><li>解决方案：用 std::weak_ptr 替代单向持有关系 (如观察者模式中的订阅者列表)。</li><li>项目关联：在模型部署框架中管理 TensorRT 引擎时，用 unique_ptr 避免循环引用导致内存泄漏。</li></ul></li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> 面试 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> C++ </tag>
+            
+            <tag> C </tag>
+            
+            <tag> Linux </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>GDB_调试指南</title>
       <link href="/2025/05/24/GDB-%E8%B0%83%E8%AF%95%E6%8C%87%E5%8D%97/"/>
       <url>/2025/05/24/GDB-%E8%B0%83%E8%AF%95%E6%8C%87%E5%8D%97/</url>
@@ -30,8 +233,8 @@
     
     <entry>
       <title>每日Linux_Cpp-3</title>
-      <link href="/2025/05/22/%E6%AF%8F%E6%97%A5Linux-Cpp-3/"/>
-      <url>/2025/05/22/%E6%AF%8F%E6%97%A5Linux-Cpp-3/</url>
+      <link href="/2025/05/23/%E6%AF%8F%E6%97%A5Linux-Cpp-3/"/>
+      <url>/2025/05/23/%E6%AF%8F%E6%97%A5Linux-Cpp-3/</url>
       
         <content type="html"><![CDATA[<h2 id="每日linux_cpp-2"><a class="markdownIt-Anchor" href="#每日linux_cpp-2"></a> 每日Linux_Cpp-2</h2><ol><li>用 #define 声明一个常量表示一年秒数(忽略闰年)并解释UL后缀的作用。 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> SECONDS_PER_YEAR (60 * 60 * 24 * 365)UL</span></span><br></pre></td></tr></table></figure><ul><li>作用: UL表示无符号长整型 (Unsinged Long), 防止数值溢出 (如某些编译器默认int为16位时，计算结果可能超过范围)。</li><li>项目关联: 在嵌入式设备的定时器配置中，需避免直接写&quot;魔法数字&quot;，使用宏定义提升代码可维护性。</li></ul></li><li>手写线程安全的单例模式代码，并解释 volatile 关键字在嵌入式场景中的作用。 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Singleton</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">static</span> Singleton* <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="literal">nullptr</span>) &#123;</span><br><span class="line">            <span class="function">std::lock_guard&lt;std::mutex&gt; <span class="title">lock</span><span class="params">(mutex)</span></span>;</span><br><span class="line">            <span class="keyword">if</span> (instance == <span class="literal">nullptr</span>) &#123;</span><br><span class="line">                instance = <span class="keyword">new</span> <span class="built_in">Singleton</span>();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">Singleton</span>(<span class="type">const</span> Singleton&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">    Singleton&amp; <span class="keyword">operator</span>=(<span class="type">const</span> Singleton&amp;) = <span class="keyword">delete</span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">static</span> Singleton* instance;</span><br><span class="line">    <span class="type">static</span> std::mutex mutex;</span><br><span class="line">    <span class="built_in">Singleton</span>() = <span class="keyword">default</span>;</span><br><span class="line">&#125;;</span><br><span class="line">Singleton* Singleton::instance = <span class="literal">nullptr</span>;</span><br><span class="line">std::mutex Singleton::mutex;</span><br></pre></td></tr></table></figure><ul><li>volatile 的作用：防止编译器优化对多线程共享变量的访问。(如中断服务程序修改的硬件寄存器的值)。</li></ul></li><li>黑盒测试与白盒测试的区别？你在项目中如何应用？<ul><li>区别：<ul><li>黑盒测试：关注输入输出，不关心内部实现(如功能测试)；</li><li>白盒测试：基于代码逻辑设计用例(如路径覆盖、分支覆盖)；</li></ul></li><li>项目关联：在图像处理算法开发中，用黑盒测试验证模型输出精度，白盒测试检查核心函数(如边缘检测)的分支覆盖。</li></ul></li><li>如何用gdb调试多进程程序？举例说明。 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gdb -p &lt;parent_pid&gt;     <span class="comment"># 附加到父进程</span></span><br><span class="line"><span class="built_in">set</span> follow-fork-mode child  <span class="comment"># 跟踪子进程</span></span><br><span class="line">b main.c:20     <span class="comment"># 在子进程代码行设断点</span></span><br></pre></td></tr></table></figure><ul><li>项目关联：在嵌入式多进程通信框架调试中，追踪子进程崩溃问题(如共享内存竞争)。</li></ul></li><li>解释 ls -amore 命令的错误及正确用法<ul><li>错误原因：-amore 被解析为 -a -m -o -r -e, 实际应为 ls -a | more (分页显示隐藏文件)</li><li>正确用法：  <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span> -a | more    <span class="comment"># 分页显示所有文件 (含隐藏文件)</span></span><br></pre></td></tr></table></figure></li></ul></li><li>如何用vi进行块拷贝、粘贴和删除操作？<ul><li>块操作步骤：<ol><li>进入可视块模式：Ctrl + V -&gt; 选中区域</li><li>拷贝：y；粘贴：p；删除d。</li></ol></li><li>项目关联：在修改嵌入式设备配置文件(如/etc/fstab)时快速调整多行参数。</li></ul></li><li>合并N个有序链表为一个新有序链表(手写代码) <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ListNode</span>* <span class="built_in">mergeKLists</span>(vector&lt;ListNode*&gt;&amp; lists) &#123;</span><br><span class="line">    <span class="keyword">auto</span> cmp = [](ListNode* a, ListNode* b) &#123; <span class="keyword">return</span> a-&gt;val &gt; b-&gt;val; &#125;;</span><br><span class="line">    priority_queue&lt;ListNode*, vector&lt;ListNode*&gt;, <span class="keyword">decltype</span>(cmp)&gt; <span class="built_in">pq</span>(cmp);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> node : lists) <span class="keyword">if</span> (node) pq.<span class="built_in">push</span>(node);</span><br><span class="line">    ListNode dummy, *curr = &amp;dummy;</span><br><span class="line">    <span class="keyword">while</span> (!pq.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">        <span class="keyword">auto</span> top = pq.<span class="built_in">top</span>(); pq.<span class="built_in">pop</span>();</span><br><span class="line">        curr-&gt;next = top;</span><br><span class="line">        curr = curr-&gt;next;</span><br><span class="line">        <span class="keyword">if</span> (top-&gt;next) pq.<span class="built_in">push</span>(top-&gt;next);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> dummy.next;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li><li>哈希表冲突的链地址法 vs 开放寻址法，嵌入式场景中如何选择？<ul><li>链地址法：稳定但需要指针开销(适合PC端)</li><li>开放寻址法：内存利用率高，适合嵌入式小内存场景(如缓存查询表)</li></ul></li><li>快速排序的最优/最差时间复杂度？如何避免最差情况？<ul><li>最优：O(n log n) (均匀分割)；最差：O(n^2) (完全有序数组)</li><li>避免方法：随机选择枢轴 (pivot) 或三数取中法。</li></ul></li><li>编写函数统计文件字符数(使用while循环)<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">charnum</span><span class="params">(<span class="type">char</span> fn[<span class="number">10</span>])</span> </span>&#123;</span><br><span class="line">    FILE* fp = <span class="built_in">fopen</span>(fn, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (!fp) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    <span class="type">int</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (<span class="built_in">fgetc</span>(fp) != EOF) count++;</span><br><span class="line">    <span class="built_in">fclose</span>(fp);</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li></ol>]]></content>
       
@@ -45,11 +248,11 @@
       
         <tags>
             
-            <tag> Linux </tag>
-            
             <tag> C++ </tag>
             
             <tag> C </tag>
+            
+            <tag> Linux </tag>
             
         </tags>
       
@@ -74,11 +277,11 @@
       
         <tags>
             
-            <tag> Linux </tag>
-            
             <tag> C++ </tag>
             
             <tag> C </tag>
+            
+            <tag> Linux </tag>
             
         </tags>
       
@@ -103,11 +306,11 @@
       
         <tags>
             
-            <tag> Linux </tag>
-            
             <tag> C++ </tag>
             
             <tag> C </tag>
+            
+            <tag> Linux </tag>
             
         </tags>
       
@@ -125,9 +328,9 @@
       
       <categories>
           
-          <category> 流媒体 </category>
-          
           <category> 部署 </category>
+          
+          <category> 流媒体 </category>
           
       </categories>
       
@@ -164,9 +367,9 @@
       
       <categories>
           
-          <category> 流媒体 </category>
-          
           <category> 部署 </category>
+          
+          <category> 流媒体 </category>
           
       </categories>
       
@@ -237,9 +440,9 @@
       
         <tags>
             
-            <tag> Linux </tag>
-            
             <tag> OpenCV </tag>
+            
+            <tag> Linux </tag>
             
         </tags>
       
