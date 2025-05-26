@@ -211,7 +211,7 @@
       <link href="/2025/05/26/%E6%AF%8F%E6%97%A5Linux-Cpp-4/"/>
       <url>/2025/05/26/%E6%AF%8F%E6%97%A5Linux-Cpp-4/</url>
       
-        <content type="html"><![CDATA[<h1 id="每日linux_cpp-4"><a class="markdownIt-Anchor" href="#每日linux_cpp-4"></a> 每日Linux_Cpp-4</h1><hr /><ol><li>虚函数表(vtable)的实现原理及多态性能损耗<ul><li>原理：每个包含虚函数的类会生成一个虚函数表，存储虚函数指针；对象内存首部包含指向该表的指针(vptr)。动态绑定通过运行时查找虚函数表实现。</li><li>性能损耗：多态调用需额外查表跳转(约 1-2 个时钟周期)，嵌入式场景中需权衡灵活性与实时性。</li><li>项目关联：在 OpenCV 图像处理基类中，用虚函数实现不同算法的多态调用(如 FeatureDetector::detect())。</li></ul></li><li>智能指针的线程安全性及 std::shared_ptr 循环引用问题<ul><li>线程安全：std::shared_ptr 的引用计数原子操作保证线程安全，但指向的堆对象需额外同步。</li><li>循环引用：若 A 持有 B 的shared_ptr, B 也持有 A 的 shared_ptr, 引用计数永不归零(两个气球相互牵引，彼此都无法被释放)。</li><li>解决方案：用 std::weak_ptr 替代单向持有关系 (如观察者模式中的订阅者列表)。</li><li>项目关联：在模型部署框架中管理 TensorRT 引擎时，用 unique_ptr 避免循环引用导致内存泄漏。</li></ul></li></ol>]]></content>
+        <content type="html"><![CDATA[<h2 id="每日linux_cpp-4"><a class="markdownIt-Anchor" href="#每日linux_cpp-4"></a> 每日Linux_Cpp-4</h2><hr /><ol><li>虚函数表(vtable)的实现原理及多态性能损耗<ul><li>原理：每个包含虚函数的类会生成一个虚函数表，存储虚函数指针；对象内存首部包含指向该表的指针(vptr)。动态绑定通过运行时查找虚函数表实现。</li><li>性能损耗：多态调用需额外查表跳转(约 1-2 个时钟周期)，嵌入式场景中需权衡灵活性与实时性。</li><li>项目关联：在 OpenCV 图像处理基类中，用虚函数实现不同算法的多态调用(如 FeatureDetector::detect())。</li></ul></li><li>智能指针的线程安全性及 std::shared_ptr 循环引用问题<ul><li>线程安全：std::shared_ptr 的引用计数原子操作保证线程安全，但指向的堆对象需额外同步。</li><li>循环引用：若 A 持有 B 的shared_ptr, B 也持有 A 的 shared_ptr, 引用计数永不归零(两个气球相互牵引，彼此都无法被释放)。</li><li>解决方案：用 std::weak_ptr 替代单向持有关系 (如观察者模式中的订阅者列表)。</li><li>项目关联：在模型部署框架中管理 TensorRT 引擎时，用 unique_ptr 避免循环引用导致内存泄漏。</li></ul></li><li>const 成员函数与 mutable 关键字的应用场景<ul><li>const 成员函数：承诺不修改对象状态 (如 size() const)，允许 const 对象调用。</li><li>mutable: 修饰可能被 const 函数修改的成员 (如缓存标记、 互斥锁)。</li><li>项目关联：在实时数据采集类中，用 mutable std::mutex 保证 const 函数内的线程安全。</li></ul></li><li>C++11 右值引用与移动语义的优化原理。<ul><li>右值引用(&amp;&amp;)：标识临时对象，允许资源转移而非拷贝(如 std::move())。<br />右值引用可以直接指向右值，也可以通过std::move指向左值；而左值引用只能指向左值(const左值引用也能指向右值)。<br />作为函数形参时，右值引用更灵活。虽然const左值引用也可以做到左右值都接受，但它无法修改，有一定局限性。</li><li>移动构造函数: 接管原对象资源(如指针)，将原对象置空避免双重释放，避免了传统的深拷贝的消耗，但是原对象被释放。</li></ul></li><li>嵌入式场景中 volatile 与内存屏障的作用<ul><li>volatile：阻止编译器优化对变量的读写(如硬件寄存器映射变量)。</li><li>内存屏障：确保指令执行顺序(如 __sync_synchronize() 防止多核缓存不一致)。</li><li>项目关联：在 STM32 中断服务程序中，用 volatile 修饰全局计时器变量，配合内存屏障保证数据可见性。</li></ul></li><li>进程间通信 (IPC) 的5种方式及适用场景<ul><li>管道 (Pipe) : 单向通信，父子进程间使用 (如 Shell 命令的 | 操作)。</li><li>共享内存：高效大数据传输，需同步机制 (如信号量)。</li><li>消息队列：结构化数据传递，支持多线程异步通信。</li><li>信号 (Signal) : 简单事件通知 (如 SIGINT 终止进程)。</li><li>套接字 (Socket) : 跨网络或本机进程通信。</li></ul></li><li>虚拟内存与物理内存的映射机制 (MMU 作用)<ul><li>MMU 功能：<ul><li>虚拟地址 -&gt; 物理地址转换 (页表查询)。</li><li>内存权限检查 (读/写/执行)。</li><li>TLB 缓存加速地址转换。</li></ul></li><li>项目关联：在嵌入式 AI 推理中，MMU 隔离模型权重内存区，防止非法访问。</li></ul></li><li>Linux 内核中断处理流程 (上半部 vs 下半部)<ul><li>上半部 (Top Half) : 在中断上下文中快速响应 (如置标志位)，不可阻塞。</li><li>下半部 (Bottom Half) : 延后处理耗时操作 (如 tasklet 或 workqueue), 可调度。</li><li>项目关联：摄像头数据采集时，上半部读取硬件缓冲区，下半部进行图像预处理。</li></ul></li><li>用户态与内核态切换的性能损耗及优化方法。<ul><li>损耗来源：上下文保存/恢复、CPU模式切换(约数百纳秒)。</li><li>优化方法：<ul><li>减少系统调用次数(如批量读写)</li><li>使用mmap映射文件到用户空间。</li><li>内核旁路技术(如 DPDK)</li></ul></li></ul></li><li>编写 Linux 内核模块的基本步骤<ol><li>实现模块初始化函数 (module_init()) 和退出函数 (module_exit())</li><li>注册设备驱动或文件系统接口</li><li>处理并发 (如自旋锁 spin_lock())</li><li>编译为 .ko 文件并加载 (insmod)</li></ol><ul><li>项目关联：在 Jetson Nano 上开发自定义 GPIO 驱动时，需编写内核模块实现引脚控制。</li></ul></li></ol><h2 id="如何设计线程安全的环形缓冲区ring-buffer"><a class="markdownIt-Anchor" href="#如何设计线程安全的环形缓冲区ring-buffer"></a> 如何设计线程安全的环形缓冲区(Ring Buffer)？</h2><pre><code><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">RingBuffer</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">RingBuffer</span>(<span class="type">size_t</span> size) : <span class="built_in">buf_</span>(size), <span class="built_in">head_</span>(<span class="number">0</span>), <span class="built_in">tail_</span>(<span class="number">0</span>) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">push</span><span class="params">(<span class="type">unit8_t</span> data)</span> </span>&#123;</span><br><span class="line">        <span class="function">std::lock_guard&lt;std::mutex&gt; <span class="title">lock</span><span class="params">(mutex_)</span></span>;</span><br><span class="line">        <span class="keyword">if</span> ((head_ + <span class="number">1</span>) % buf_.<span class="built_in">size</span>() == tail_) <span class="keyword">return</span> <span class="literal">false</span>;   <span class="comment">// 满 </span></span><br><span class="line">        buf_[head_] = data;</span><br><span class="line">        head_ = (head_ + <span class="number">1</span>) % <span class="built_in">buf_size</span>();</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">pop</span><span class="params">(<span class="type">unit8_t</span>&amp; data)</span> </span>&#123;</span><br><span class="line">        <span class="function">std::lock_guard&lt;std::mutex&gt; <span class="title">lock</span><span class="params">(mutex_)</span></span>;</span><br><span class="line">        <span class="keyword">if</span> (head_ == tail_) <span class="keyword">return</span> <span class="literal">false</span>;   <span class="comment">// 空</span></span><br><span class="line">        data = buf_[tail_];</span><br><span class="line">        tail_ = (tail_ + <span class="number">1</span>) % buf_.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::vector&lt;<span class="type">unit8_t</span>&gt; buf_;</span><br><span class="line">    <span class="type">size_t</span> head_, tail_;</span><br><span class="line">    std::mutex mutex_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></code></pre>]]></content>
       
       
       <categories>
@@ -366,9 +366,9 @@
       
         <tags>
             
-            <tag> Docker </tag>
-            
             <tag> Linux </tag>
+            
+            <tag> Docker </tag>
             
             <tag> Nginx </tag>
             
@@ -405,9 +405,9 @@
       
         <tags>
             
-            <tag> Docker </tag>
-            
             <tag> Linux </tag>
+            
+            <tag> Docker </tag>
             
             <tag> Nginx </tag>
             
@@ -440,9 +440,9 @@
       
         <tags>
             
-            <tag> Docker </tag>
-            
             <tag> Linux </tag>
+            
+            <tag> Docker </tag>
             
         </tags>
       
@@ -525,13 +525,13 @@
       
         <tags>
             
-            <tag> OpenCV </tag>
-            
             <tag> Pytorch </tag>
             
             <tag> Java </tag>
             
             <tag> Python </tag>
+            
+            <tag> OpenCV </tag>
             
             <tag> TFlite </tag>
             
@@ -560,11 +560,11 @@
       
         <tags>
             
-            <tag> OpenCV </tag>
-            
             <tag> Java </tag>
             
             <tag> Python </tag>
+            
+            <tag> OpenCV </tag>
             
             <tag> Chaquopy </tag>
             
@@ -701,9 +701,9 @@
       
         <tags>
             
-            <tag> Nuxt3 </tag>
-            
             <tag> Docker </tag>
+            
+            <tag> Nuxt3 </tag>
             
         </tags>
       
