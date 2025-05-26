@@ -366,9 +366,9 @@
       
         <tags>
             
-            <tag> Linux </tag>
-            
             <tag> Docker </tag>
+            
+            <tag> Linux </tag>
             
             <tag> Nginx </tag>
             
@@ -405,9 +405,9 @@
       
         <tags>
             
-            <tag> Linux </tag>
-            
             <tag> Docker </tag>
+            
+            <tag> Linux </tag>
             
             <tag> Nginx </tag>
             
@@ -440,9 +440,9 @@
       
         <tags>
             
-            <tag> Linux </tag>
-            
             <tag> Docker </tag>
+            
+            <tag> Linux </tag>
             
         </tags>
       
@@ -527,13 +527,13 @@
             
             <tag> OpenCV </tag>
             
+            <tag> Pytorch </tag>
+            
             <tag> Java </tag>
             
             <tag> Python </tag>
             
             <tag> TFlite </tag>
-            
-            <tag> Pytorch </tag>
             
         </tags>
       
@@ -591,9 +591,9 @@
       
         <tags>
             
-            <tag> Pytorch </tag>
-            
             <tag> Cuda </tag>
+            
+            <tag> Pytorch </tag>
             
         </tags>
       
