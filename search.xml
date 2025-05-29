@@ -583,15 +583,15 @@
       
         <tags>
             
-            <tag> OpenCV </tag>
-            
             <tag> Java </tag>
             
             <tag> Python </tag>
             
-            <tag> TFlite </tag>
+            <tag> OpenCV </tag>
             
             <tag> Pytorch </tag>
+            
+            <tag> TFlite </tag>
             
         </tags>
       
@@ -618,11 +618,11 @@
       
         <tags>
             
-            <tag> OpenCV </tag>
-            
             <tag> Java </tag>
             
             <tag> Python </tag>
+            
+            <tag> OpenCV </tag>
             
             <tag> Chaquopy </tag>
             
@@ -649,9 +649,9 @@
       
         <tags>
             
-            <tag> Pytorch </tag>
-            
             <tag> Cuda </tag>
+            
+            <tag> Pytorch </tag>
             
         </tags>
       
