@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>每日Linux-Cpp-5 | 塑料星空</title><meta name="keywords" content="Linux,C++,C"><meta name="author" content="zikcc"><meta name="copyright" content="zikcc"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#18171d"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="每日Linux-Cpp-5"><meta name="application-name" content="每日Linux-Cpp-5"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#18171d"><meta property="og:type" content="article"><meta property="og:title" content="每日Linux-Cpp-5"><meta property="og:url" content="https://zikcc.github.io/2025/05/27/%E6%AF%8F%E6%97%A5Linux-Cpp-5/index.html"><meta property="og:site_name" content="塑料星空"><meta property="og:description" content="每日 Linux-Cpp-5   SFINAE (Substitution Failure Is Not An Error) 的原理及在类型萃取中的应用  原理：模板实例化时，若替换导致无效类型&amp;#x2F;表达式，该模板被静默忽略，继续寻找其他可行模板。"><meta property="og:locale" content="zh-CN"><meta property="og:image" content="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg"><meta property="article:author" content="zikcc"><meta property="article:tag" content="编程笔记 代码片段 开发环境 技术博客 解决方案"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg"><meta name="description" content="每日 Linux-Cpp-5   SFINAE (Substitution Failure Is Not An Error) 的原理及在类型萃取中的应用  原理：模板实例化时，若替换导致无效类型&amp;#x2F;表达式，该模板被静默忽略，继续寻找其他可行模板。"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://zikcc.github.io/2025/05/27/%E6%AF%8F%E6%97%A5Linux-Cpp-5/"><link rel="preconnect" href="//cdn.cbd.int"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>每日Linux-Cpp-5 | 塑料星空</title><meta name="keywords" content="Linux,C++,C"><meta name="author" content="zikcc"><meta name="copyright" content="zikcc"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#18171d"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="每日Linux-Cpp-5"><meta name="application-name" content="每日Linux-Cpp-5"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#18171d"><meta property="og:type" content="article"><meta property="og:title" content="每日Linux-Cpp-5"><meta property="og:url" content="https://zikcc.github.io/2025/05/27/%E6%AF%8F%E6%97%A5Linux-Cpp-5/index.html"><meta property="og:site_name" content="塑料星空"><meta property="og:description" content="每日 Linux-Cpp-5   SFINAE (Substitution Failure Is Not An Error) (替换失败不是错误) 的原理及在类型萃取中的应用  原理: 模板实例化时, 若替换导致无效类型&amp;#x2F;表达式, 该模板被静默忽略, 继续寻找其他可行模板, 它允许在模"><meta property="og:locale" content="zh-CN"><meta property="og:image" content="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg"><meta property="article:author" content="zikcc"><meta property="article:tag" content="编程笔记 代码片段 开发环境 技术博客 解决方案"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg"><meta name="description" content="每日 Linux-Cpp-5   SFINAE (Substitution Failure Is Not An Error) (替换失败不是错误) 的原理及在类型萃取中的应用  原理: 模板实例化时, 若替换导致无效类型&amp;#x2F;表达式, 该模板被静默忽略, 继续寻找其他可行模板, 它允许在模"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://zikcc.github.io/2025/05/27/%E6%AF%8F%E6%97%A5Linux-Cpp-5/"><link rel="preconnect" href="//cdn.cbd.int"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
 (function() {
   var hm = document.createElement("script");
   hm.src = "https://hm.baidu.com/hm.js?77d87efef35b6b7a18fe3874796b663d";
@@ -62,12 +62,12 @@
   configTitle: '塑料星空',
   title: '每日Linux-Cpp-5',
   postAI: '',
-  pageFillDescription: '每日 Linux-Cpp-5每日的原理及在类型萃取中的应用原理模板实例化时若替换导致无效类型表达式该模板被静默忽略继续寻找其他可行模板',
+  pageFillDescription: '每日 Linux-Cpp-5每日替换失败不是错误的原理及在类型萃取中的应用原理模板实例化时若替换导致无效类型表达式该模板被静默忽略继续寻找其他可行模板它允许在模板实例化过程中如果某个模板参数的替换导致编译错误编译器不会报错而是简单地忽略这个模板实例化应用如果输入的具有这个成员函数那么不会产生错误就会继承这个类里面只有一个静态成员如果没有这个成员函数就会出错那么就会跳过下面的这个模板去调用上面的模板也就是直接继承为什么认为是成员函数而不是成员变量用于获取类型中的成员的地址如果是成员函数会得到一个指向成员函数的指针例如等会得到一个指向成员变量的指针例如能够将表达式的结果类型折叠为但是没有的变量类型获取成员变量一般使用项目关联在模型序列化框架中用检测自定义层是否实现方法实现泛型处理类似的序列化机制奇异递归模板模式的静态多态实现引言即奇异递归模板模式是中一个独特而强大的设计模式它利用模板和继承的特性允许在编译时进行多态操作从而提高代码的性能和灵活性在人类思维中我们经常倾向于通过继承和类似性来理解和分类事物以一种类似的方式工作通过继承自己在子类中使用父类模板它在技术上实现了一种自我认知的模式实现派生类将自身作为模板参数传递给基类优势零虚函数开销适合于嵌入式高频调用的算法基类例如调用具体子类的输出无虚函数开销对比项虚函数多态时机编译期运行期性能无虚表查找开销有虚函数调用开销是否可静态调用支持如不支持代码生成模板实例化可能代码膨胀单份虚表适用场景高性能库编译期检查运行时动态多态完美转发的实现与的作用前言万能引用万能引用是完美转发的基础其形式为其中是模板参数是万能引用万能引用的关键特性可以绑定到左值或右值通过引用折叠规则确定最终类型引用折叠规则当模板参数推导遇到引用的引用时使用以下规则进行折叠原理通过右值引用和引用折叠保留参数原始类型保留的左值右值性在转发时恢复参数的原始类型左值引用右值引用调用调用条件转换为右值引用当为非左值引用类型时模板元编程在嵌入式性能优化中的局限性局限性编译时间膨胀模板实例化过多调试困难错误信息冗长代码体积增大可能影响存储优化策略限制递归深度如替代部分模板模板元编程时期编译期执行机制通过模板特化递归实例化在编译期生成代码典型应用类型计算编译期数值计算缺点语法晦涩编译错误信息难懂编译速度慢例如用模板计算阶乘编译期计算函数时期编译期或运行期执行取决于调用上下文机制用普通函数语法实现编译期计算典型应用替代简单的模板数值计算优点代码直观编译错误友好编译期计算使用约束模板参数自旋锁与互斥锁的使用场景对比前言锁类型比喻场景行为自旋锁你在便利店抢最后一瓶水不断问店员有了吗有了吗循环检查忙等待占着一直检查锁是否释放互斥锁你在便利店抢最后一瓶水店员说没货了你去旁边沙发睡觉到货后店员叫醒你睡眠等待让出锁可用时被系统唤醒特性自旋锁互斥锁等待方式循环检查消耗线程挂起不消耗开销高频占用上下文切换开销适用场景锁持有时间极短纳秒微秒级锁持有时间较长毫秒级以上实现级别通常需原子指令如依赖操作系统如线程状态始终处于运行状态可能被阻塞自旋锁场景临界区极短无阻塞中断上下文多核环境实现忙等待互斥锁场景临界区较长可能阻塞如文件用户态线程实现睡眠等待项目关联在多核设备驱动中中断处理函数用自旋锁保护共享寄存器为什么在中断处理中用自旋锁中断上下文不能睡眠中断处理函数如的不能调用可能引发睡眠的函数如互斥锁而自旋锁是唯一选择多核竞争多核可能同时访问同一硬件寄存器需保证原子性短临界区寄存器操作通常极快纳秒级适合自旋锁的忙等待特性的原理及适用场景前言是内核中一种重要的同步机制它针对读多写少的场景提供了极高的读取性能的基本理念可以用三句话概括读取无锁读者不需要任何锁或原子操作可以极速访问数据写者同步写者通过复制更新替换的方式修改数据延迟回收确保没有读者后再释放旧数据这种设计使得在读取频率远高于写入频率的场景下性能远超传统的读写锁原理读侧无锁访问数据仅需内存屏障写侧创建副本修改后原子替换指针异步回收旧数据适用场景读多写少的数据结构如路由表内核链表优势读操作零阻塞写操作延迟回收避免竞争内存屏障在多核架构中的作用问题多核乱序执行和缓存不一致可能导致数据同步错误解决方案写屏障确保屏障前的写操作先于屏障后的写操作完成读屏障确保屏障前的读操作先于屏障后的读操作完成项目关联在异构计算中同步模型权重数据时需显式插入内存屏障模型量化的基本原理及对推理速度精度的影响原理将权重激活值映射到动态范围缩放影响速度减少内存带宽加速指令如的精度可能损失边缘样本的识别能力需校准数据集补偿项目关联中采用混合量化策略敏感层保持嵌入式部署中模型权重的内存对齐优化方法优化方法权重数组按字节对齐适配使用分配内存结构体用修饰效果减少提升传输效率如瑞芯微解释中的层融合优化原理原理将连续层如合并为单一内核减少内存读写次数中间结果复用内核启动开销上下文切换项目关联在部署时自动融合中的层推理速度提升倍综合应用题设计一个支持动态优先级调整的线程池阻塞在这里只有或者队列不为空才结束的作用将从左值转为右值允许移动而非拷贝如果的类型支持移动语义如等则会调用移动构造函数避免不必要的深拷贝提高性能',
   isPost: true,
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2025-05-28 11:57:09',
+  postUpdate: '2025-06-03 17:15:10',
   postMainColor: '',
 }</script><noscript><style type="text/css">
   #nav {
@@ -303,15 +303,378 @@ setTimeout(function(){preloader.endLoading();},10000)
 if (true) {
   document.addEventListener('pjax:send', () => { preloader.initLoading() })
   document.addEventListener('pjax:complete', () => { preloader.endLoading() })
-}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><a id="site-name" href="/" accesskey="h"><div class="title">塑料星空</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/"><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 更多</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/charts/"><span> 统计</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="搜索🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> 搜索</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="中控台" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"><div class="console-card" id="card-newest-comments"><div class="card-content"><div class="author-content-item-tips">互动</div><span class="author-content-item-title"> 最新评论</span></div><div class="aside-list"><span>正在加载中...</span></div></div></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">兴趣点</div><span class="author-content-item-title">寻找你感兴趣的领域</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/C/" style="font-size: 1.05rem;">C<sup>13</sup></a><a href="/tags/C/" style="font-size: 1.05rem;">C++<sup>15</sup></a><a href="/tags/Camke/" style="font-size: 1.05rem;">Camke<sup>1</sup></a><a href="/tags/Chaquopy/" style="font-size: 1.05rem;">Chaquopy<sup>1</sup></a><a href="/tags/Clangd/" style="font-size: 1.05rem;">Clangd<sup>1</sup></a><a href="/tags/Cuda/" style="font-size: 1.05rem;">Cuda<sup>1</sup></a><a href="/tags/Docker/" style="font-size: 1.05rem;">Docker<sup>4</sup></a><a href="/tags/FFmpeg/" style="font-size: 1.05rem;">FFmpeg<sup>2</sup></a><a href="/tags/GDB/" style="font-size: 1.05rem;">GDB<sup>1</sup></a><a href="/tags/Git/" style="font-size: 1.05rem;">Git<sup>1</sup></a><a href="/tags/HLS/" style="font-size: 1.05rem;">HLS<sup>2</sup></a><a href="/tags/HTTP-FLV/" style="font-size: 1.05rem;">HTTP-FLV<sup>1</sup></a><a href="/tags/Java/" style="font-size: 1.05rem;">Java<sup>3</sup></a><a href="/tags/Linux/" style="font-size: 1.05rem;">Linux<sup>17</sup></a><a href="/tags/Mysql/" style="font-size: 1.05rem;">Mysql<sup>1</sup></a><a href="/tags/Nginx/" style="font-size: 1.05rem;">Nginx<sup>2</sup></a><a href="/tags/Nuxt3/" style="font-size: 1.05rem;">Nuxt3<sup>1</sup></a><a href="/tags/OpenCV/" style="font-size: 1.05rem;">OpenCV<sup>3</sup></a><a href="/tags/Python/" style="font-size: 1.05rem;">Python<sup>3</sup></a><a href="/tags/Pytorch/" style="font-size: 1.05rem;">Pytorch<sup>2</sup></a><a href="/tags/RTMP/" style="font-size: 1.05rem;">RTMP<sup>2</sup></a><a href="/tags/SpringBoot/" style="font-size: 1.05rem;">SpringBoot<sup>1</sup></a><a href="/tags/TFlite/" style="font-size: 1.05rem;">TFlite<sup>1</sup></a><a href="/tags/Vscode/" style="font-size: 1.05rem;">Vscode<sup>2</sup></a><a href="/tags/Vue/" style="font-size: 1.05rem;">Vue<sup>1</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>文章</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>归档</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/05/"><span class="card-archive-list-date">五月 2025</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">27</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="显示模式切换" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="边栏显示控制"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="切换"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="post-meta-categories"><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-inbox post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%9D%A2%E8%AF%95/" itemprop="url">面试</a></span><span class="article-meta tags"><a class="article-meta__tags" href="/tags/Linux/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>Linux</span></a><a class="article-meta__tags" href="/tags/C/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>C++</span></a><a class="article-meta__tags" href="/tags/C/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>C</span></a></span></div></div><h1 class="post-title" itemprop="name headline">每日Linux-Cpp-5</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2025-05-27T01:31:43.000Z" title="发表于 2025-05-27 09:31:43">2025-05-27</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2025-05-28T03:57:09.241Z" title="更新于 2025-05-28 11:57:09">2025-05-28</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">字数总计:</span><span class="word-count" title="文章字数">63</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">阅读时长:</span><span>1分钟</span></span><span class="post-meta-separator"></span><span class="post-meta-pv-cv" id="" data-flag-title="每日Linux-Cpp-5"><i class="anzhiyufont anzhiyu-icon-fw-eye post-meta-icon"></i><span class="post-meta-label" title="阅读量">阅读量:</span><span id="busuanzi_value_page_pv"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-spin"></i></span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为无锡"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>无锡</span><span class="post-meta-separator"></span><span class="post-meta-commentcount"><i class="anzhiyufont anzhiyu-icon-comments post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/2025/05/27/%E6%AF%8F%E6%97%A5Linux-Cpp-5/#post-comment" tabindex="-1"><span id="twikoo-count"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-spin"></i></span></a></span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="https://zikcc.github.io/2025/05/27/%E6%AF%8F%E6%97%A5Linux-Cpp-5/"><header><a class="post-meta-categories" href="/categories/%E9%9D%A2%E8%AF%95/" itemprop="url">面试</a><a href="/tags/Linux/" tabindex="-1" itemprop="url">Linux</a><a href="/tags/C/" tabindex="-1" itemprop="url">C++</a><a href="/tags/C/" tabindex="-1" itemprop="url">C</a><h1 id="CrawlerTitle" itemprop="name headline">每日Linux-Cpp-5</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">zikcc</span><time itemprop="dateCreated datePublished" datetime="2025-05-27T01:31:43.000Z" title="发表于 2025-05-27 09:31:43">2025-05-27</time><time itemprop="dateCreated datePublished" datetime="2025-05-28T03:57:09.241Z" title="更新于 2025-05-28 11:57:09">2025-05-28</time></header><h2 id="每日-linux-cpp-5">每日 Linux-Cpp-5</h2>
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><a id="site-name" href="/" accesskey="h"><div class="title">塑料星空</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/"><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 更多</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/charts/"><span> 统计</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="搜索🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> 搜索</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="中控台" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"><div class="console-card" id="card-newest-comments"><div class="card-content"><div class="author-content-item-tips">互动</div><span class="author-content-item-title"> 最新评论</span></div><div class="aside-list"><span>正在加载中...</span></div></div></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">兴趣点</div><span class="author-content-item-title">寻找你感兴趣的领域</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/C/" style="font-size: 1.05rem;">C<sup>13</sup></a><a href="/tags/C/" style="font-size: 1.05rem;">C++<sup>15</sup></a><a href="/tags/Camke/" style="font-size: 1.05rem;">Camke<sup>1</sup></a><a href="/tags/Chaquopy/" style="font-size: 1.05rem;">Chaquopy<sup>1</sup></a><a href="/tags/Clangd/" style="font-size: 1.05rem;">Clangd<sup>1</sup></a><a href="/tags/Cuda/" style="font-size: 1.05rem;">Cuda<sup>1</sup></a><a href="/tags/Docker/" style="font-size: 1.05rem;">Docker<sup>4</sup></a><a href="/tags/FFmpeg/" style="font-size: 1.05rem;">FFmpeg<sup>2</sup></a><a href="/tags/GDB/" style="font-size: 1.05rem;">GDB<sup>1</sup></a><a href="/tags/Git/" style="font-size: 1.05rem;">Git<sup>1</sup></a><a href="/tags/HLS/" style="font-size: 1.05rem;">HLS<sup>2</sup></a><a href="/tags/HTTP-FLV/" style="font-size: 1.05rem;">HTTP-FLV<sup>1</sup></a><a href="/tags/Java/" style="font-size: 1.05rem;">Java<sup>3</sup></a><a href="/tags/Linux/" style="font-size: 1.05rem;">Linux<sup>17</sup></a><a href="/tags/Mysql/" style="font-size: 1.05rem;">Mysql<sup>1</sup></a><a href="/tags/Nginx/" style="font-size: 1.05rem;">Nginx<sup>2</sup></a><a href="/tags/Nuxt3/" style="font-size: 1.05rem;">Nuxt3<sup>1</sup></a><a href="/tags/OpenCV/" style="font-size: 1.05rem;">OpenCV<sup>3</sup></a><a href="/tags/Python/" style="font-size: 1.05rem;">Python<sup>3</sup></a><a href="/tags/Pytorch/" style="font-size: 1.05rem;">Pytorch<sup>2</sup></a><a href="/tags/RTMP/" style="font-size: 1.05rem;">RTMP<sup>2</sup></a><a href="/tags/SpringBoot/" style="font-size: 1.05rem;">SpringBoot<sup>1</sup></a><a href="/tags/TFlite/" style="font-size: 1.05rem;">TFlite<sup>1</sup></a><a href="/tags/Vscode/" style="font-size: 1.05rem;">Vscode<sup>2</sup></a><a href="/tags/Vue/" style="font-size: 1.05rem;">Vue<sup>1</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>文章</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>归档</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/05/"><span class="card-archive-list-date">五月 2025</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">27</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="显示模式切换" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="边栏显示控制"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="切换"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="post-meta-categories"><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-inbox post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%9D%A2%E8%AF%95/" itemprop="url">面试</a></span><span class="article-meta tags"><a class="article-meta__tags" href="/tags/Linux/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>Linux</span></a><a class="article-meta__tags" href="/tags/C/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>C++</span></a><a class="article-meta__tags" href="/tags/C/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>C</span></a></span></div></div><h1 class="post-title" itemprop="name headline">每日Linux-Cpp-5</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2025-05-27T01:31:43.000Z" title="发表于 2025-05-27 09:31:43">2025-05-27</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2025-06-03T09:15:10.533Z" title="更新于 2025-06-03 17:15:10">2025-06-03</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">字数总计:</span><span class="word-count" title="文章字数">2.7k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">阅读时长:</span><span>9分钟</span></span><span class="post-meta-separator"></span><span class="post-meta-pv-cv" id="" data-flag-title="每日Linux-Cpp-5"><i class="anzhiyufont anzhiyu-icon-fw-eye post-meta-icon"></i><span class="post-meta-label" title="阅读量">阅读量:</span><span id="busuanzi_value_page_pv"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-spin"></i></span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为无锡"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>无锡</span><span class="post-meta-separator"></span><span class="post-meta-commentcount"><i class="anzhiyufont anzhiyu-icon-comments post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/2025/05/27/%E6%AF%8F%E6%97%A5Linux-Cpp-5/#post-comment" tabindex="-1"><span id="twikoo-count"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-spin"></i></span></a></span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="https://zikcc.github.io/2025/05/27/%E6%AF%8F%E6%97%A5Linux-Cpp-5/"><header><a class="post-meta-categories" href="/categories/%E9%9D%A2%E8%AF%95/" itemprop="url">面试</a><a href="/tags/Linux/" tabindex="-1" itemprop="url">Linux</a><a href="/tags/C/" tabindex="-1" itemprop="url">C++</a><a href="/tags/C/" tabindex="-1" itemprop="url">C</a><h1 id="CrawlerTitle" itemprop="name headline">每日Linux-Cpp-5</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">zikcc</span><time itemprop="dateCreated datePublished" datetime="2025-05-27T01:31:43.000Z" title="发表于 2025-05-27 09:31:43">2025-05-27</time><time itemprop="dateCreated datePublished" datetime="2025-06-03T09:15:10.533Z" title="更新于 2025-06-03 17:15:10">2025-06-03</time></header><h2 id="每日-linux-cpp-5">每日 Linux-Cpp-5</h2>
 <hr>
 <ol type="1">
-<li>SFINAE (Substitution Failure Is Not An Error)
+<li>SFINAE (Substitution Failure Is Not An Error) (替换失败不是错误)
 的原理及在类型萃取中的应用
 <ul>
-<li>原理：模板实例化时，若替换导致无效类型/表达式，该模板被静默忽略，继续寻找其他可行模板。</li>
+<li>原理: 模板实例化时, 若替换导致无效类型/表达式, 该模板被静默忽略,
+继续寻找其他可行模板, 它允许在模板实例化过程中,
+如果某个模板参数的替换导致编译错误, 编译器不会报错,
+而是简单地忽略这个模板实例化。。</li>
+<li>应用:
+  <pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token comment">// 如果输入的 T 具有 serialize 这个成员函数, 那么不会产生错误, has_serialize 就会继承 true_type 这个类, 里面只有一个静态成员 true</span>
+<span class="token comment">// 如果没有这个成员函数, 就会出错, 那么就会跳过下面的这个模板, 去调用上面的模板, 也就是直接继承 false_type</span>
+<span class="token comment">// 为什么认为 serialize 是成员函数而不是成员变量? </span>
+<span class="token comment">// &amp;T::serialize 用于获取T类型中的serialize成员的地址</span>
+<span class="token comment">// 如果 serialize 是成员函数, decltype(&amp;T::serialize) 会得到一个指向成员函数的指针 例如, void (T::*)(), int (T::*) (int)等</span>
+<span class="token comment">// &amp;T::serialize会得到一个指向成员变量的指针 例如, int T::*</span>
+<span class="token comment">// void_t 能够将 表达式的结果类型折叠为 void, 但是没有 void 的变量类型。</span>
+<span class="token comment">// 获取成员变量一般使用 T::member</span>
+<span class="token keyword">template</span> <span class="token operator">&lt;</span><span class="token keyword">typename</span> <span class="token class-name">T</span><span class="token punctuation">,</span> <span class="token keyword">typename</span> <span class="token operator">=</span> <span class="token keyword">void</span><span class="token operator">&gt;</span> 
+<span class="token keyword">struct</span> <span class="token class-name">has_serialize</span> <span class="token operator">:</span> <span class="token base-clause"><span class="token class-name">false_type</span></span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">template</span> <span class="token operator">&lt;</span><span class="token keyword">typename</span> <span class="token class-name">T</span><span class="token operator">&gt;</span>
+<span class="token keyword">struct</span> <span class="token class-name">has_serialize</span><span class="token operator">&lt;</span>T<span class="token punctuation">,</span> void_t<span class="token operator">&lt;</span><span class="token keyword">decltype</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>T<span class="token double-colon punctuation">::</span>serialize<span class="token punctuation">)</span><span class="token operator">&gt;&gt;</span> <span class="token operator">:</span> true_type <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li>项目关联: 在模型序列化框架中, 用 SFINAE 检测自定义层是否实现
+serialize() 方法, 实现泛型处理(类似 ONNX 的序列化机制)</li>
+</ul></li>
+<li>CRTP (Curiously Recurring Template Pattern) (奇异递归模板模式)
+的静态多态实现
+<ul>
+<li>引言: CRTP, 即奇异递归模板模式(Curiously Recurring Template
+Pattern), 是C++中一个独特而强大的设计模式。它利用模板和继承的特性,
+允许在编译时进行多态操作, 从而提高代码的性能和灵活性。在人类思维中,
+我们经常倾向于通过继承和类似性来理解和分类事物。CRTP以一种类似的方式工作,
+通过继承自己(在子类中使用父类模板),
+它在技术上实现了一种“自我认知”的模式。</li>
+<li>实现: 派生类将自身作为模板参数传递给基类
+  <pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token keyword">template</span> <span class="token operator">&lt;</span><span class="token keyword">typename</span> <span class="token class-name">Derived</span><span class="token operator">&gt;</span>
+<span class="token keyword">class</span> <span class="token class-name">Base</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span><span class="token operator">:</span>
+        <span class="token keyword">void</span> <span class="token function">interface</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token generic-function"><span class="token function">static_cast</span><span class="token generic class-name"><span class="token operator">&lt;</span>Derived<span class="token operator">*</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span> <span class="token operator">-&gt;</span> <span class="token function">implementation</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token keyword">class</span> <span class="token class-name">Derived</span> <span class="token operator">:</span> <span class="token base-clause"><span class="token keyword">public</span> <span class="token class-name">Base</span><span class="token operator">&lt;</span><span class="token class-name">Derived</span><span class="token operator">&gt;</span></span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span><span class="token operator">:</span>
+        <span class="token keyword">void</span> <span class="token function">implementation</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment">/* ... */</span>
+        <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li>优势: 零虚函数开销, 适合于嵌入式高频调用的算法基类
+<ul>
+<li>例如:
+  <pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token keyword">template</span> <span class="token operator">&lt;</span><span class="token keyword">typename</span> <span class="token class-name">Derived</span><span class="token operator">&gt;</span>
+<span class="token keyword">class</span> <span class="token class-name">Shape</span> <span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+    <span class="token keyword">void</span> <span class="token function">draw</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token generic-function"><span class="token function">static_cast</span><span class="token generic class-name"><span class="token operator">&lt;</span>Derived<span class="token operator">*</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token operator">-&gt;</span><span class="token function">draw_impl</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// 调用具体子类的 draw_impl()</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Circle</span> <span class="token operator">:</span> <span class="token base-clause"><span class="token keyword">public</span> <span class="token class-name">Shape</span><span class="token operator">&lt;</span><span class="token class-name">Circle</span><span class="token operator">&gt;</span></span> <span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+    <span class="token keyword">void</span> <span class="token function">draw_impl</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> std<span class="token double-colon punctuation">::</span>cout <span class="token operator">&lt;&lt;</span> <span class="token string">"Drawing a circle\n"</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Square</span> <span class="token operator">:</span> <span class="token base-clause"><span class="token keyword">public</span> <span class="token class-name">Shape</span><span class="token operator">&lt;</span><span class="token class-name">Square</span><span class="token operator">&gt;</span></span> <span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+    <span class="token keyword">void</span> <span class="token function">draw_impl</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> std<span class="token double-colon punctuation">::</span>cout <span class="token operator">&lt;&lt;</span> <span class="token string">"Drawing a square\n"</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    Circle c<span class="token punctuation">;</span>
+    c<span class="token punctuation">.</span><span class="token function">draw</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// 输出 "Drawing a circle"（无虚函数开销！）</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>对比项</strong></th>
+<th style="text-align: left;"><strong>CRTP</strong></th>
+<th style="text-align: left;"><strong>虚函数</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>多态时机</strong></td>
+<td style="text-align: left;">编译期</td>
+<td style="text-align: left;">运行期</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>性能</strong></td>
+<td style="text-align: left;">无虚表查找开销</td>
+<td style="text-align: left;">有虚函数调用开销</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>是否可静态调用</strong></td>
+<td style="text-align: left;">支持（如 <code>static_func</code>）</td>
+<td style="text-align: left;">不支持</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>代码生成</strong></td>
+<td style="text-align: left;">模板实例化（可能代码膨胀）</td>
+<td style="text-align: left;">单份虚表</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>适用场景</strong></td>
+<td style="text-align: left;">高性能库、编译期检查</td>
+<td style="text-align: left;">运行时动态多态</td>
+</tr>
+</tbody>
+</table></li>
+</ul></li>
+<li>完美转发 (Perfect Forwarding) 的实现与 std::forward 的作用
+<ul>
+<li>前言:
+<ul>
+<li>万能引用（Universal Reference） 万能引用是完美转发的基础, 其形式为
+T&amp;&amp;, 其中 T 是模板参数：
+  <pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">typename</span> <span class="token class-name">T</span><span class="token operator">&gt;</span>
+<span class="token keyword">void</span> <span class="token function">foo</span><span class="token punctuation">(</span>T<span class="token operator">&amp;&amp;</span> arg<span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// arg 是万能引用</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+万能引用的关键特性：
+<ul>
+<li>可以绑定到左值或右值</li>
+<li>通过引用折叠规则（Reference Collapsing）确定最终类型 引用折叠规则:
+当模板参数推导遇到引用的引用时, C++使用以下规则进行折叠：
+  <pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">T<span class="token operator">&amp;</span> <span class="token operator">&amp;</span> → T<span class="token operator">&amp;</span>
+T<span class="token operator">&amp;</span> <span class="token operator">&amp;&amp;</span> → T<span class="token operator">&amp;</span>
+T<span class="token operator">&amp;&amp;</span> <span class="token operator">&amp;</span> → T<span class="token operator">&amp;</span>
+T<span class="token operator">&amp;&amp;</span> <span class="token operator">&amp;&amp;</span> → T<span class="token operator">&amp;&amp;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+</ul></li>
+</ul></li>
+<li>原理: 通过右值引用和引用折叠保留参数原始类型
+  <pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token keyword">template</span> <span class="token operator">&lt;</span><span class="token keyword">typename</span> <span class="token class-name">T</span><span class="token operator">&gt;</span>
+<span class="token keyword">void</span> <span class="token function">warpper</span><span class="token punctuation">(</span>T<span class="token operator">&amp;&amp;</span> arg<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">target</span><span class="token punctuation">(</span>std<span class="token double-colon punctuation">::</span><span class="token generic-function"><span class="token function">forward</span><span class="token generic class-name"><span class="token operator">&lt;</span>T<span class="token operator">&gt;</span></span></span><span class="token punctuation">(</span>arg<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   <span class="token comment">// 保留arg的左值/右值性。在转发时恢复参数的原始类型</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">void</span> <span class="token function">target</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token operator">&amp;</span> x<span class="token punctuation">)</span> <span class="token punctuation">{</span> std<span class="token double-colon punctuation">::</span>cout <span class="token operator">&lt;&lt;</span> <span class="token string">"左值引用\n"</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+<span class="token keyword">void</span> <span class="token function">target</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token operator">&amp;&amp;</span> x<span class="token punctuation">)</span> <span class="token punctuation">{</span> std<span class="token double-colon punctuation">::</span>cout <span class="token operator">&lt;&lt;</span> <span class="token string">"右值引用\n"</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">int</span> a <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
+    <span class="token function">wrapper</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment">// 调用 target(int&amp;)</span>
+    <span class="token function">wrapper</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   <span class="token comment">// 调用 target(int&amp;&amp;)</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li>std::forward: 条件转换为右值引用 (当 T 为非左值引用类型时)</li>
+</ul></li>
+<li>模板元编程在嵌入式性能优化中的局限性
+<ul>
+<li>局限性：
+<ul>
+<li>编译时间膨胀(模板实例化过多)</li>
+<li>调试困难(错误信息冗长)</li>
+<li>代码体积增大(可能影响 Flash 存储)</li>
+</ul></li>
+<li>优化策略：
+<ul>
+<li>限制递归深度 (如 constexpr 替代部分模板)
+<ol type="1">
+<li>模板元编程（TMP） 时期：编译期执行
+机制：通过模板特化、递归实例化在编译期生成代码
+典型应用：类型计算、编译期数值计算
+缺点：语法晦涩、编译错误信息难懂、编译速度慢 例如：</li>
+</ol>
+  <pre class="line-numbers language-Cpp" data-language="Cpp"><code class="language-Cpp">// 用模板计算阶乘
+template&lt;int N&gt;
+struct Factorial {
+    static const int value = N * Factorial&lt;N-1&gt;::value;
+};
+template&lt;&gt;
+struct Factorial&lt;0&gt; {
+    static const int value = 1;
+};
+int x = Factorial&lt;5&gt;::value; // 编译期计算120<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ol start="2" type="1">
+<li>constexpr 函数 时期：编译期或运行期执行（取决于调用上下文）
+机制：用普通函数语法实现编译期计算 典型应用：替代简单的模板数值计算
+优点：代码直观、编译错误友好</li>
+</ol>
+  <pre class="line-numbers language-Cpp" data-language="Cpp"><code class="language-Cpp">constexpr int factorial(int n) {
+    return (n &lt;= 1) ? 1 : n * factorial(n - 1);
+}
+
+int x = factorial(5); // 编译期计算120<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li>使用 concepts (C++20) 约束模板参数</li>
+</ul></li>
+</ul></li>
+<li>自旋锁 (spinlock) 与互斥锁 (mutex) 的使用场景对比
+<ul>
+<li><p>前言： | <strong>锁类型</strong> | <strong>比喻场景</strong> |
+<strong>行为</strong> | | :——— | :———————————————————– |
+:—————————————————— | | <strong>自旋锁</strong> |
+你在便利店抢最后一瓶水, 不断问店员：“有了吗？有了吗？”（循环检查） |
+<strong>忙等待（Busy-wait）</strong>：占着CPU一直检查锁是否释放 | |
+<strong>互斥锁</strong> | 你在便利店抢最后一瓶水, 店员说“没货了“,
+你去旁边沙发睡觉, 到货后店员叫醒你 |
+<strong>睡眠等待（Sleep-wait）</strong>：让出CPU, 锁可用时被系统唤醒
+|</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>特性</strong></th>
+<th style="text-align: left;"><strong>自旋锁（Spinlock）</strong></th>
+<th style="text-align: left;"><strong>互斥锁（Mutex）</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>等待方式</strong></td>
+<td style="text-align: left;">循环检查（消耗CPU）</td>
+<td style="text-align: left;">线程挂起（不消耗CPU）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>开销</strong></td>
+<td style="text-align: left;">高频CPU占用</td>
+<td style="text-align: left;">上下文切换开销</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>适用场景</strong></td>
+<td style="text-align: left;">锁持有时间极短（纳秒/微秒级）</td>
+<td style="text-align: left;">锁持有时间较长（毫秒级以上）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>实现级别</strong></td>
+<td style="text-align: left;">通常需原子指令（如CAS）</td>
+<td style="text-align: left;">依赖操作系统API（如futex）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>线程状态</strong></td>
+<td style="text-align: left;">始终处于运行状态（Runnable）</td>
+<td style="text-align: left;">可能被阻塞（Blocked）</td>
+</tr>
+</tbody>
+</table></li>
+<li><p>自旋锁：</p>
+<ul>
+<li>场景：临界区极短(无阻塞)、中断上下文、多核环境</li>
+<li>实现：忙等待 (spin_lock_irqsave())</li>
+</ul></li>
+<li><p>互斥锁：</p>
+<ul>
+<li>场景：临界区较长、可能阻塞 (如文件 IO)、用户态线程</li>
+<li>实现：睡眠等待 (mutex_lock())</li>
+</ul></li>
+<li><p>项目关联：在多核 ARM 设备驱动中,
+中断处理函数用自旋锁保护共享寄存器 为什么在中断处理中用自旋锁？
+中断上下文不能睡眠：中断处理函数（如Linux的irq_handler）不能调用可能引发睡眠的函数（如互斥锁mutex_lock）,
+而自旋锁是唯一选择。 多核竞争：多核CPU可能同时访问同一硬件寄存器,
+需保证原子性。 短临界区：寄存器操作通常极快（纳秒级）,
+适合自旋锁的忙等待特性。</p></li>
+</ul></li>
+<li>RCU (Read-Copy-Update) 的原理及适用场景
+<ul>
+<li>前言： RCU（Read-Copy-Update）是Linux内核中一种重要的同步机制,
+它针对“读多写少“的场景提供了极高的读取性能。
+RCU的基本理念可以用三句话概括： 读取无锁：读者不需要任何锁或原子操作,
+可以极速访问数据 写者同步：写者通过复制-更新-替换的方式修改数据
+延迟回收：确保没有读者后再释放旧数据
+这种设计使得在读取频率远高于写入频率的场景下,
+性能远超传统的读写锁。</li>
+<li>原理:
+<ol type="1">
+<li>读侧：无锁访问数据 (仅需内存屏障)</li>
+<li>写侧：创建副本修改后, 原子替换指针, 异步回收旧数据</li>
+</ol></li>
+<li>适用场景： 读多写少的数据结构 (如路由表、内核链表)</li>
+<li>优势： 读操作零阻塞, 写操作延迟回收避免竞争。</li>
+</ul></li>
+<li>内存屏障 (Memory Barrier) 在 ARM 多核架构中的作用
+<ul>
+<li>问题：多核乱序执行和缓存不一致可能导致数据同步错误</li>
+<li>解决方案：
+<ul>
+<li>写屏障 (dmb st) : 确保屏障前的写操作先于屏障后的写操作完成。</li>
+<li>读屏障 (dmb ld) : 确保屏障前的读操作先于屏障后的读操作完成。</li>
+</ul></li>
+<li>项目关联： 在异构计算 (CPU + NPU)
+中同步模型权重数据时需显式插入内存屏障</li>
+</ul></li>
+<li>模型量化的基本原理及对推理速度/精度的影响
+<ul>
+<li>原理：将 FP32 权重/激活值映射到 INT8 (动态范围缩放)</li>
+<li>影响：
+<ul>
+<li>速度：减少内存带宽, 加速 SIMD 指令 (如 ARM NEON 的vqmovn)</li>
+<li>精度：可能损失边缘样本的识别能力 (需校准数据集补偿)</li>
+</ul></li>
+<li>项目关联: TensorRT 中采用混合量化策略 (敏感层保持 FP16)</li>
+</ul></li>
+<li>嵌入式部署中模型权重的内存对齐优化方法
+<ul>
+<li>优化方法：
+<ul>
+<li>权重数组按 64 字节对齐 (适配 Cache Line)</li>
+<li>使用 posix_memalign 分配内存</li>
+<li>结构体用 <strong>attribute</strong>((aligned))修饰</li>
+</ul></li>
+<li>效果: 减少 Cache Miss, 提升 NPU DMA 传输效率 (如瑞芯微 RKNN
+SDK)</li>
+</ul></li>
+<li>解释 TensorRT 中的层融合 (Layer Fusion) 优化原理
+<ul>
+<li>原理：将连续层(如 Conv + ReLU + BN) 合并为单一内核, 减少:
+<ul>
+<li>内存读写次数 (中间结果复用)</li>
+<li>内核启动开销 (CUDA 上下文切换)</li>
+</ul></li>
+<li>项目关联：在 Jetson Nano 部署 YOLOv5 时, TensorRT 自动融合 Backbone
+中的 Conv+Silu 层, 推理速度提升3倍。 综合应用题
+设计一个支持动态优先级调整的线程池</li>
 </ul></li>
 </ol>
+<pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token keyword">class</span> <span class="token class-name">ThreadPool</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span><span class="token operator">:</span>
+        <span class="token keyword">using</span> Task <span class="token operator">=</span> std<span class="token double-colon punctuation">::</span>function<span class="token operator">&lt;</span><span class="token keyword">void</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">&gt;</span><span class="token punctuation">;</span>
+
+        <span class="token function">ThreadPool</span><span class="token punctuation">(</span>size_t threads<span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token function">stop</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">for</span><span class="token punctuation">(</span>size_t i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> threads<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                workers<span class="token punctuation">.</span><span class="token function">emplace_back</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token keyword">this</span><span class="token punctuation">]</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        std<span class="token double-colon punctuation">::</span>unique_lock<span class="token operator">&lt;</span>std<span class="token double-colon punctuation">::</span>mutex<span class="token operator">&gt;</span> <span class="token function">lock</span><span class="token punctuation">(</span>queue_mutex<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        <span class="token comment">// 阻塞在这里，只有 stop 或者 队列不为空才结束 wait</span>
+                        condition<span class="token punctuation">.</span><span class="token function">wait</span><span class="token punctuation">(</span>lock<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token keyword">this</span><span class="token punctuation">]</span> <span class="token punctuation">{</span>
+                            <span class="token keyword">return</span> stop <span class="token operator">||</span> <span class="token operator">!</span>tasks<span class="token punctuation">.</span><span class="token function">empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                        <span class="token keyword">if</span> <span class="token punctuation">(</span>stop <span class="token operator">&amp;&amp;</span> tasks<span class="token punctuation">.</span><span class="token function">empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">return</span><span class="token punctuation">;</span>
+                        <span class="token comment">// std::move 的作用</span>
+                        <span class="token comment">// 将tasks.top().second从左值转为右值（允许移动而非拷贝）</span>
+                        <span class="token comment">// 如果second的类型支持移动语义（如std::function、std::string等），则会调用移动构造函数</span>
+                        <span class="token comment">// 避免不必要的深拷贝，提高性能</span>
+                        <span class="token keyword">auto</span> task <span class="token operator">=</span> std<span class="token double-colon punctuation">::</span><span class="token function">move</span><span class="token punctuation">(</span>tasks<span class="token punctuation">.</span><span class="token function">top</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>second<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        tasks<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        lock<span class="token punctuation">.</span><span class="token function">unlock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+                        <span class="token function">task</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token operator">~</span><span class="token function">ThreadPool</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token punctuation">{</span>
+                std<span class="token double-colon punctuation">::</span>lock_guard<span class="token operator">&lt;</span>std<span class="token double-colon punctuation">::</span>mutex<span class="token operator">&gt;</span> <span class="token function">lock</span><span class="token punctuation">(</span>queue_mutex<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                stop <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            condition<span class="token punctuation">.</span><span class="token function">notify_all</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">auto</span><span class="token operator">&amp;</span> worker <span class="token operator">:</span> workers<span class="token punctuation">)</span> worker<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">void</span> <span class="token function">enqueue</span><span class="token punctuation">(</span><span class="token keyword">int</span> priority<span class="token punctuation">,</span> Task task<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token punctuation">{</span>
+                std<span class="token double-colon punctuation">::</span>lock_guard<span class="token operator">&lt;</span>std<span class="token double-colon punctuation">::</span>mutex<span class="token operator">&gt;</span> <span class="token function">lock</span><span class="token punctuation">(</span>queue_mutex<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                tasks<span class="token punctuation">.</span><span class="token function">emplace</span><span class="token punctuation">(</span>priority<span class="token punctuation">,</span> std<span class="token double-colon punctuation">::</span><span class="token function">move</span><span class="token punctuation">(</span>task<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            condition<span class="token punctuation">.</span><span class="token function">notify_one</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+    <span class="token keyword">private</span><span class="token operator">:</span>
+        std<span class="token double-colon punctuation">::</span>vector<span class="token operator">&lt;</span>std<span class="token double-colon punctuation">::</span>thread<span class="token operator">&gt;</span> workers<span class="token punctuation">;</span>
+        std<span class="token double-colon punctuation">::</span>priority_queue<span class="token operator">&lt;</span>std<span class="token double-colon punctuation">::</span>pair<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token punctuation">,</span> Task<span class="token operator">&gt;&gt;</span> tasks<span class="token punctuation">;</span>
+        std<span class="token double-colon punctuation">::</span>mutex queue_mutex<span class="token punctuation">;</span>
+        std<span class="token double-colon punctuation">::</span>condition_variable condition<span class="token punctuation">;</span>
+        <span class="token keyword">bool</span> stop<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>   
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 </article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src="https://zikcc.oss-cn-beijing.aliyuncs.com/img/20250324140542.jpg" title="头像" alt="头像"><img class="post-copyright__author_img_front" src="https://zikcc.oss-cn-beijing.aliyuncs.com/img/20250324140542.jpg" title="头像" alt="头像"></a><div class="post-copyright__author_name">zikcc</div><div class="post-copyright__author_desc">Code · Debug · Repeat</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="https://zikcc.github.io/2025/05/27/%E6%AF%8F%E6%97%A5Linux-Cpp-5/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('https://zikcc.github.io/2025/05/27/%E6%AF%8F%E6%97%A5Linux-Cpp-5/')">每日Linux-Cpp-5</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="https://zikcc.github.io/2025/05/27/%E6%AF%8F%E6%97%A5Linux-Cpp-5/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=每日Linux-Cpp-5&amp;url=https://zikcc.github.io/2025/05/27/%E6%AF%8F%E6%97%A5Linux-Cpp-5/&amp;pic=https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
   var currentPageUrl = window.location.href;
   var input = document.createElement("input");
@@ -321,7 +684,7 @@ if (true) {
   input.setSelectionRange(0, 99999);
   document.execCommand("copy");
   document.body.removeChild(input);
-}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://zikcc.github.io" target="_blank">塑料星空</a>！</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"><a class="post-meta__box__tags" href="/tags/Linux/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>Linux<span class="tagsPageCount">17</span></a><a class="post-meta__box__tags" href="/tags/C/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>C++<span class="tagsPageCount">15</span></a><a class="post-meta__box__tags" href="/tags/C/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>C<span class="tagsPageCount">13</span></a></div></div></div><div class="post_share"><div class="social-share" data-image="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/05/26/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E5%AF%BC%E8%88%AA/"><img class="prev-cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/185306-17401351860382.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">自定义协议栈服务器开发导航</div></div></a></div><div class="next-post pull-right"><a href="/2025/05/28/%E6%AF%8F%E6%97%A5Linux-Cpp-6/"><img class="next-cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">每日Linux-Cpp-6</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="anzhiyufont anzhiyu-icon-thumbs-up fa-fw" style="font-size: 1.5rem; margin-right: 4px"></i><span>喜欢这篇文章的人也看了</span></div><div class="relatedPosts-list"><div><a href="/2025/05/21/%E6%AF%8F%E6%97%A5Linux-Cpp-1/" title="每日Linux-Cpp-1" style="height:100%;"><img class="cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2025-05-21</div><div class="title">每日Linux-Cpp-1</div></div></a></div><div><a href="/2025/05/22/%E6%AF%8F%E6%97%A5Linux-Cpp-2/" title="每日Linux-Cpp-2" style="height:100%;"><img class="cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2025-05-22</div><div class="title">每日Linux-Cpp-2</div></div></a></div><div><a href="/2025/05/23/%E6%AF%8F%E6%97%A5Linux-Cpp-3/" title="每日Linux-Cpp-3" style="height:100%;"><img class="cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2025-05-23</div><div class="title">每日Linux-Cpp-3</div></div></a></div><div><a href="/2025/05/26/%E6%AF%8F%E6%97%A5Linux-Cpp%E5%AF%BC%E8%88%AA/" title="每日Linux_Cpp导航" style="height:100%;"><img class="cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2025-05-26</div><div class="title">每日Linux_Cpp导航</div></div></a></div><div><a href="/2025/05/26/%E6%AF%8F%E6%97%A5Linux-Cpp-4/" title="每日Linux-Cpp-4" style="height:100%;"><img class="cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2025-05-26</div><div class="title">每日Linux-Cpp-4</div></div></a></div><div><a href="/2025/05/28/%E6%AF%8F%E6%97%A5Linux-Cpp-6/" title="每日Linux-Cpp-6" style="height:100%;"><img class="cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2025-05-28</div><div class="title">每日Linux-Cpp-6</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> 评论</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><img class="avatar-img" src="https://zikcc.oss-cn-beijing.aliyuncs.com/img/20250324140542.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-status"><img class="g-status" src="https://bu.dusays.com/2023/08/24/64e6ce9c507bb.png" alt="status"/></div></div><div class="author-info__description"><div style="line-height:1.38; margin:0.6rem 0; text-align:justify; color:rgba(255, 255, 255, 0.8);"> <b style="color:#fff">这里记录代码片段、环境配置和报错解决, 偶尔分享开发技巧与踩坑日志。</b> </div> <div style="line-height:1.38; margin:0.6rem 0; text-align:justify; color:rgba(255, 255, 255, 0.8);"> <b style="color:#fff">希望这些实战经验能缩短你的调试时间, 让编程少些 Segment Fault, 多些 Hello World。</b></div></div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/about"><h1 class="author-info__name">zikcc</h1><div class="author-info__desc">Code · Debug · Repeat</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/zikcc" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a></div></div></div></div><div class="card-widget" id="card-poem"><div id="poem_sentence"></div><div id="poem_info"><div id="poem_dynasty"></div><div id="poem_author"></div></div></div><script src="https://cdn.jsdelivr.net/npm/js-heo@1.0.11/poem/jinrishici.js" charset="utf-8"></script><script type="text/javascript">jinrishici.load(function(result) {
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://zikcc.github.io" target="_blank">塑料星空</a>！</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"><a class="post-meta__box__tags" href="/tags/Linux/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>Linux<span class="tagsPageCount">17</span></a><a class="post-meta__box__tags" href="/tags/C/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>C++<span class="tagsPageCount">15</span></a><a class="post-meta__box__tags" href="/tags/C/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>C<span class="tagsPageCount">13</span></a></div></div></div><div class="post_share"><div class="social-share" data-image="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/05/26/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E5%AF%BC%E8%88%AA/"><img class="prev-cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/185306-17401351860382.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">自定义协议栈服务器开发导航</div></div></a></div><div class="next-post pull-right"><a href="/2025/05/28/%E6%AF%8F%E6%97%A5Linux-Cpp-6/"><img class="next-cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">每日Linux-Cpp-6</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="anzhiyufont anzhiyu-icon-thumbs-up fa-fw" style="font-size: 1.5rem; margin-right: 4px"></i><span>喜欢这篇文章的人也看了</span></div><div class="relatedPosts-list"><div><a href="/2025/05/21/%E6%AF%8F%E6%97%A5Linux-Cpp-1/" title="每日Linux-Cpp-1" style="height:100%;"><img class="cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2025-05-21</div><div class="title">每日Linux-Cpp-1</div></div></a></div><div><a href="/2025/05/28/%E6%AF%8F%E6%97%A5Linux-Cpp-6/" title="每日Linux-Cpp-6" style="height:100%;"><img class="cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2025-05-28</div><div class="title">每日Linux-Cpp-6</div></div></a></div><div><a href="/2025/05/22/%E6%AF%8F%E6%97%A5Linux-Cpp-2/" title="每日Linux-Cpp-2" style="height:100%;"><img class="cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2025-05-22</div><div class="title">每日Linux-Cpp-2</div></div></a></div><div><a href="/2025/05/23/%E6%AF%8F%E6%97%A5Linux-Cpp-3/" title="每日Linux-Cpp-3" style="height:100%;"><img class="cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2025-05-23</div><div class="title">每日Linux-Cpp-3</div></div></a></div><div><a href="/2025/05/26/%E6%AF%8F%E6%97%A5Linux-Cpp%E5%AF%BC%E8%88%AA/" title="每日Linux_Cpp导航" style="height:100%;"><img class="cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2025-05-26</div><div class="title">每日Linux_Cpp导航</div></div></a></div><div><a href="/2025/05/26/%E6%AF%8F%E6%97%A5Linux-Cpp-4/" title="每日Linux-Cpp-4" style="height:100%;"><img class="cover" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2025-05-26</div><div class="title">每日Linux-Cpp-4</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> 评论</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><img class="avatar-img" src="https://zikcc.oss-cn-beijing.aliyuncs.com/img/20250324140542.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-status"><img class="g-status" src="https://bu.dusays.com/2023/08/24/64e6ce9c507bb.png" alt="status"/></div></div><div class="author-info__description"><div style="line-height:1.38; margin:0.6rem 0; text-align:justify; color:rgba(255, 255, 255, 0.8);"> <b style="color:#fff">这里记录代码片段、环境配置和报错解决, 偶尔分享开发技巧与踩坑日志。</b> </div> <div style="line-height:1.38; margin:0.6rem 0; text-align:justify; color:rgba(255, 255, 255, 0.8);"> <b style="color:#fff">希望这些实战经验能缩短你的调试时间, 让编程少些 Segment Fault, 多些 Hello World。</b></div></div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/about"><h1 class="author-info__name">zikcc</h1><div class="author-info__desc">Code · Debug · Repeat</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/zikcc" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a></div></div></div></div><div class="card-widget" id="card-poem"><div id="poem_sentence"></div><div id="poem_info"><div id="poem_dynasty"></div><div id="poem_author"></div></div></div><script src="https://cdn.jsdelivr.net/npm/js-heo@1.0.11/poem/jinrishici.js" charset="utf-8"></script><script type="text/javascript">jinrishici.load(function(result) {
 var sentence = document.querySelector("#poem_sentence")
 var author = document.querySelector("#poem_author")
 var dynasty = document.querySelector("#poem_dynasty")
