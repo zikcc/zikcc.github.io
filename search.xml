@@ -424,9 +424,9 @@
       
         <tags>
             
-            <tag> Docker </tag>
-            
             <tag> Linux </tag>
+            
+            <tag> Docker </tag>
             
             <tag> Nginx </tag>
             
@@ -434,9 +434,9 @@
             
             <tag> HLS </tag>
             
-            <tag> HTTP-FLV </tag>
-            
             <tag> FFmpeg </tag>
+            
+            <tag> HTTP-FLV </tag>
             
         </tags>
       
@@ -463,9 +463,9 @@
       
         <tags>
             
-            <tag> Docker </tag>
-            
             <tag> Linux </tag>
+            
+            <tag> Docker </tag>
             
             <tag> Nginx </tag>
             
@@ -498,9 +498,9 @@
       
         <tags>
             
-            <tag> Docker </tag>
-            
             <tag> Linux </tag>
+            
+            <tag> Docker </tag>
             
         </tags>
       
@@ -759,9 +759,9 @@
       
         <tags>
             
-            <tag> Nuxt3 </tag>
-            
             <tag> Docker </tag>
+            
+            <tag> Nuxt3 </tag>
             
         </tags>
       

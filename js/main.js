@@ -1508,7 +1508,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setTimeout(() => {
         greetingBox.remove();
       }, 500);
-    }, 3000);
+    }, 5000);
   }
   function statistics51aInit() {
     const loadScript = (url, charset = "UTF-8", crossorigin, id) => {
