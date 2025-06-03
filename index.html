@@ -11,7 +11,7 @@
   postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"local","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
   diytitle: {"enable":true,"leaveTitle":"断开TCP连接...","backTitle":"SYN/ACK! 重新握手成功"},
   LA51: undefined,
-  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  greetingBox: {"enable":true,"default":"🌙 夜色温柔，愿星光为你守候","list":[{"greeting":"🌌 星河入梦时，愿你好眠如婴","startTime":0,"endTime":5},{"greeting":"🌄 晨光吻醒窗棂，新的一天正为你绽放笑颜","startTime":6,"endTime":8},{"greeting":"☀️ 朝露未晞时，愿你心如晴空般明朗","startTime":9,"endTime":10},{"greeting":"🍚 正午的阳光为午餐撒上金黄的佐料","startTime":11,"endTime":12},{"greeting":"🌿 饭后的慵懒时光，连时钟都走得慢了些","startTime":12,"endTime":13},{"greeting":"🕊 午后三时的风，正轻轻翻阅你未完成的故事","startTime":13,"endTime":14},{"greeting":"🌻 光阴的画笔正为你描绘今日的精彩","startTime":14,"endTime":17},{"greeting":"🍽 暮色中的炊烟，是生活给你的温柔奖赏","startTime":17,"endTime":19},{"greeting":"🕯 华灯初上时，这是专属于你的宁静时光","startTime":20,"endTime":24}]},
   twikooEnvId: 'https://zikcc-twikoo.netlify.app/.netlify/functions/twikoo',
   commentBarrageConfig:undefined,
   music_page_default: "nav_music",
@@ -67,7 +67,7 @@
   isHome: true,
   isHighlightShrink: false,
   isToc: false,
-  postUpdate: '2025-06-03 21:59:38',
+  postUpdate: '2025-06-03 22:08:06',
   postMainColor: '',
 }</script><noscript><style type="text/css">
   #nav {
@@ -385,7 +385,44 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
                 &quot;quality&quot;: [
                     128,
                     320,
-                    2000 ...</div><a class="blog-slider__button" href="2025/05/20/逆向破解加密爬取音乐实战/" alt="逆向破解加密爬取音乐实战">详情   </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" href="2025/05/24/GDB-调试指南/" title="GDB_调试指南"><img width="48" height="48" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/092428-1744248268411a.jpg" alt="图片" onerror="this.src=undefined; this.onerror = null;"></a><div class="blog-slider__content"><span class="blog-slider__code">2025-05-24</span><a class="blog-slider__title" href="2025/05/24/GDB-调试指南/" alt="GDB_调试指南">GDB_调试指南</a><div class="blog-slider__text">以下是一份详细的 GDB
+                    2000 ...</div><a class="blog-slider__button" href="2025/05/20/逆向破解加密爬取音乐实战/" alt="逆向破解加密爬取音乐实战">详情   </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" href="2025/05/19/nuxt3项目使用docker部署在华为云上/" title="nuxt3项目使用docker部署在华为云上"><img width="48" height="48" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/094330-1741916610d4a8.jpg" alt="图片" onerror="this.src=undefined; this.onerror = null;"></a><div class="blog-slider__content"><span class="blog-slider__code">2025-05-19</span><a class="blog-slider__title" href="2025/05/19/nuxt3项目使用docker部署在华为云上/" alt="nuxt3项目使用docker部署在华为云上">nuxt3项目使用docker部署在华为云上</a><div class="blog-slider__text">购买华为云服务器
+配置
+付费模式
+
+硬件
+
+操作系统
+
+网络配置
+
+
+高级配置
+
+记录密码，后续远程登录时要用。
+确认配置
+
+服务器安装docker
+远程登录
+
+安装yum工具
+yum install -y yum-utils \
+           device-mapper-persistent-data \
+           lvm2 --skip-broken
+
+
+然后更新本地镜像源：
+yum-config-manager \
+    --add-repo \
+    https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+    
+sed -i 's/download.docker.com/mirrors.aliyun.com\/docker-ce/g' /etc/yum.repos.d/docker-ce.repo
+
+yum makecache fast
+
+docker
+docker版本：
+CE( Community
+Edition)是社 ...</div><a class="blog-slider__button" href="2025/05/19/nuxt3项目使用docker部署在华为云上/" alt="nuxt3项目使用docker部署在华为云上">详情   </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" href="2025/05/24/GDB-调试指南/" title="GDB_调试指南"><img width="48" height="48" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/092428-1744248268411a.jpg" alt="图片" onerror="this.src=undefined; this.onerror = null;"></a><div class="blog-slider__content"><span class="blog-slider__code">2025-05-24</span><a class="blog-slider__title" href="2025/05/24/GDB-调试指南/" alt="GDB_调试指南">GDB_调试指南</a><div class="blog-slider__text">以下是一份详细的 GDB
 调试指南，涵盖基础到高级用法，适用于 Linux C/C++
 程序调试（包括多线程、核心转储分析等场景）。
 
@@ -454,7 +491,21 @@ q
 
 
 2. 断点管理
-2. ...</div><a class="blog-slider__button" href="2025/05/24/GDB-调试指南/" alt="GDB_调试指南">详情   </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" href="2025/05/21/ubuntu22-04安装编译OpenCV/" title="ubuntu22.04安装编译OpenCV"><img width="48" height="48" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/113435-1745379275d426.jpg" alt="图片" onerror="this.src=undefined; this.onerror = null;"></a><div class="blog-slider__content"><span class="blog-slider__code">2025-05-21</span><a class="blog-slider__title" href="2025/05/21/ubuntu22-04安装编译OpenCV/" alt="ubuntu22.04安装编译OpenCV">ubuntu22.04安装编译OpenCV</a><div class="blog-slider__text">安装opencv
+2. ...</div><a class="blog-slider__button" href="2025/05/24/GDB-调试指南/" alt="GDB_调试指南">详情   </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" href="2025/05/21/ubuntu22-04安装docker/" title="ubuntu22.04安装docker"><img width="48" height="48" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/124042-1745988042f382.jpg" alt="图片" onerror="this.src=undefined; this.onerror = null;"></a><div class="blog-slider__content"><span class="blog-slider__code">2025-05-21</span><a class="blog-slider__title" href="2025/05/21/ubuntu22-04安装docker/" alt="ubuntu22.04安装docker">ubuntu22.04安装docker</a><div class="blog-slider__text">安装docker
+虚拟机 ubuntu 22.04 安装 docker
+准备工作
+#安装前先卸载操作系统默认安装的docker，
+sudo apt-get remove docker docker-engine docker.io containerd runc
+
+#安装必要支持
+sudo apt install apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release
+
+添加源
+#添加 Docker 官方 GPG key （可能国内现在访问会存在问题）
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+# 阿里源（推荐使用阿里的gpg KEY）
+curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubu ...</div><a class="blog-slider__button" href="2025/05/21/ubuntu22-04安装docker/" alt="ubuntu22.04安装docker">详情   </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" href="2025/05/21/ubuntu22-04安装编译OpenCV/" title="ubuntu22.04安装编译OpenCV"><img width="48" height="48" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/113435-1745379275d426.jpg" alt="图片" onerror="this.src=undefined; this.onerror = null;"></a><div class="blog-slider__content"><span class="blog-slider__code">2025-05-21</span><a class="blog-slider__title" href="2025/05/21/ubuntu22-04安装编译OpenCV/" alt="ubuntu22.04安装编译OpenCV">ubuntu22.04安装编译OpenCV</a><div class="blog-slider__text">安装opencv
 前置环境
 需要系统上存在cmake, g++, make 或者 ninja-build 如果没有,
 执行下面命令安装:
@@ -478,56 +529,7 @@ sudo rm -rf /usr/include/opencv4 /usr/lib/x86_64-linux-gnu/libopencv_*
 新建文件夹放置下载的源码 这里我下载到了
 cd ~/Desktop/vision/opencv_lib
 
-从github 下载opencv ...</div><a class="blog-slider__button" href="2025/05/21/ubuntu22-04安装编译OpenCV/" alt="ubuntu22.04安装编译OpenCV">详情   </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" href="2025/05/19/vscode与clangd/" title="vscode与clangd"><img width="48" height="48" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/110318-1747364598acb3.jpg" alt="图片" onerror="this.src=undefined; this.onerror = null;"></a><div class="blog-slider__content"><span class="blog-slider__code">2025-05-19</span><a class="blog-slider__title" href="2025/05/19/vscode与clangd/" alt="vscode与clangd">vscode与clangd</a><div class="blog-slider__text">vscode 安装 clangd
-出现找不到头文件
-编写settings.json
-在 .vscode 目录下的 setting.json 中加入
-&quot;clangd.arguments&quot;: [
-        &quot;--background-index&quot;,
-        &quot;--compile-commands-dir=build&quot;,  //compile_command.json相对路径，cmake默认生成在build，自行配置
-        &quot;-j=12&quot;,
-        &quot;--all-scopes-completion&quot;,
-        &quot;--completion-style=detailed&quot;,
-        &quot;--header-insertion=iwyu&quot;,
-        &quot;--pch-storage=memory&quot;,
-        &quot;--cross-file-rename&quot;,
-        &quot;--enable-config&quot;,
-        &quot;--fallback-style=WebKit&quot;,
-        &quot;--pretty&quot;,
-        &quot;- ...</div><a class="blog-slider__button" href="2025/05/19/vscode与clangd/" alt="vscode与clangd">详情   </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" href="2025/05/19/git指南/" title="git指南"><img width="48" height="48" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/092428-1744248268411a.jpg" alt="图片" onerror="this.src=undefined; this.onerror = null;"></a><div class="blog-slider__content"><span class="blog-slider__code">2025-05-19</span><a class="blog-slider__title" href="2025/05/19/git指南/" alt="git指南">git指南</a><div class="blog-slider__text">新建仓库
-远程仓库
-在 github 上创建新仓库
-本地仓库
-github
-已经创建新仓库，使用以下命令初始化本地仓库并推送到远程仓库
-# 进入项目根目录
-cd ~/your-project-folder
-
-# 初始化 Git 仓库
-git init
-
-# 创建 .gitignore 文件（可选）
-echo &quot;*.log&quot; &amp;gt;&amp;gt; .gitignore
-echo &quot;tmp/&quot; &amp;gt;&amp;gt; .gitignore
-
-# 添加所有文件到暂存区
-git add .
-
-# 提交代码
-git commit -m &quot;初始提交：***项目&quot;
-
-# 关联远程仓库（替换 YOUR-USERNAME）
-git remote add origin https://github.com/YOUR-USERNAME/nginx-streaming-demos.git
-
-# 推送到 GitHub
-git branch -M main
-git push -u origin main
-
-已有远程仓库与本地仓库
-有修改，需更新
-# 查看当前分支
-git branch
-# 如果要切换到其 ...</div><a class="blog-slider__button" href="2025/05/19/git指南/" alt="git指南">详情   </a></div></div></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div><div id="topPostGroup"><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/26/自定义协议栈服务器开发导航/" title="自定义协议栈服务器开发导航"><span class="top-group-text">荐</span><img class="post_bg" alt="自定义协议栈服务器开发导航" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/185306-17401351860382.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/26/自定义协议栈服务器开发导航/" title="自定义协议栈服务器开发导航">自定义协议栈服务器开发导航</a></div></div><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/26/每日Linux-Cpp导航/" title="每日Linux_Cpp导航"><span class="top-group-text">荐</span><img class="post_bg" alt="每日Linux_Cpp导航" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/26/每日Linux-Cpp导航/" title="每日Linux_Cpp导航">每日Linux_Cpp导航</a></div></div><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/21/搭建Nginx-FLV流媒体服务器/" title="搭建Nginx-FLV流媒体服务器"><span class="top-group-text">荐</span><img class="post_bg" alt="搭建Nginx-FLV流媒体服务器" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/155539-1745913339936c.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/21/搭建Nginx-FLV流媒体服务器/" title="搭建Nginx-FLV流媒体服务器">搭建Nginx-FLV流媒体服务器</a></div></div><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/20/逆向破解加密爬取音乐实战/" title="逆向破解加密爬取音乐实战"><span class="top-group-text">荐</span><img class="post_bg" alt="逆向破解加密爬取音乐实战" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/092104-1746753664bc72.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/20/逆向破解加密爬取音乐实战/" title="逆向破解加密爬取音乐实战">逆向破解加密爬取音乐实战</a></div></div><div class="top-group-list-none"></div><div class="top-group-list-none"></div><div class="top-group-list-none"></div></div></div></div></div><script src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.js"></script><script>function initBlogSlider() {
+从github 下载opencv ...</div><a class="blog-slider__button" href="2025/05/21/ubuntu22-04安装编译OpenCV/" alt="ubuntu22.04安装编译OpenCV">详情   </a></div></div></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div><div id="topPostGroup"><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/26/自定义协议栈服务器开发导航/" title="自定义协议栈服务器开发导航"><span class="top-group-text">荐</span><img class="post_bg" alt="自定义协议栈服务器开发导航" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/185306-17401351860382.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/26/自定义协议栈服务器开发导航/" title="自定义协议栈服务器开发导航">自定义协议栈服务器开发导航</a></div></div><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/26/每日Linux-Cpp导航/" title="每日Linux_Cpp导航"><span class="top-group-text">荐</span><img class="post_bg" alt="每日Linux_Cpp导航" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/26/每日Linux-Cpp导航/" title="每日Linux_Cpp导航">每日Linux_Cpp导航</a></div></div><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/21/搭建Nginx-FLV流媒体服务器/" title="搭建Nginx-FLV流媒体服务器"><span class="top-group-text">荐</span><img class="post_bg" alt="搭建Nginx-FLV流媒体服务器" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/155539-1745913339936c.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/21/搭建Nginx-FLV流媒体服务器/" title="搭建Nginx-FLV流媒体服务器">搭建Nginx-FLV流媒体服务器</a></div></div><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/20/逆向破解加密爬取音乐实战/" title="逆向破解加密爬取音乐实战"><span class="top-group-text">荐</span><img class="post_bg" alt="逆向破解加密爬取音乐实战" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/092104-1746753664bc72.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/20/逆向破解加密爬取音乐实战/" title="逆向破解加密爬取音乐实战">逆向破解加密爬取音乐实战</a></div></div><div class="top-group-list-none"></div><div class="top-group-list-none"></div><div class="top-group-list-none"></div></div></div></div></div><script src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.js"></script><script>function initBlogSlider() {
   var swiper = new Swiper(".blog-slider", {
     passiveListeners: true,
     spaceBetween: 30,
@@ -560,6 +562,12 @@ git branch
 setTimeout(()=>{
   initBlogSlider()
 }, 100)</script><div class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div id="categoryBar"><div class="category-bar" id="category-bar"><div id="catalog-bar"><div id="catalog-list"><div class="catalog-list-item" id="首页"><a href="/">首页</a></div>
+    <div class="catalog-list-item" id="/categories/部署/">
+      <a href="/categories/部署/">
+        部署
+      </a>
+    </div>
+    
     <div class="catalog-list-item" id="/categories/笔记/">
       <a href="/categories/笔记/">
         笔记
@@ -572,9 +580,9 @@ setTimeout(()=>{
       </a>
     </div>
     
-    <div class="catalog-list-item" id="/categories/部署/">
-      <a href="/categories/部署/">
-        部署
+    <div class="catalog-list-item" id="/categories/流媒体/">
+      <a href="/categories/流媒体/">
+        流媒体
       </a>
     </div>
     
@@ -587,12 +595,6 @@ setTimeout(()=>{
     <div class="catalog-list-item" id="/categories/面试/">
       <a href="/categories/面试/">
         面试
-      </a>
-    </div>
-    
-    <div class="catalog-list-item" id="/categories/流媒体/">
-      <a href="/categories/流媒体/">
-        流媒体
       </a>
     </div>
     
