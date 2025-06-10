@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>服务器22端口无法访问和docker容器镜像消失</title>
+      <link href="/2025/06/10/%E6%9C%8D%E5%8A%A1%E5%99%A822%E7%AB%AF%E5%8F%A3%E6%97%A0%E6%B3%95%E8%AE%BF%E9%97%AE%E5%92%8Cdocker%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E6%B6%88%E5%A4%B1/"/>
+      <url>/2025/06/10/%E6%9C%8D%E5%8A%A1%E5%99%A822%E7%AB%AF%E5%8F%A3%E6%97%A0%E6%B3%95%E8%AE%BF%E9%97%AE%E5%92%8Cdocker%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E6%B6%88%E5%A4%B1/</url>
+      
+        <content type="html"><![CDATA[<h2 id="华为云无法远程ssh"><a class="markdownIt-Anchor" href="#华为云无法远程ssh"></a> 华为云无法远程ssh</h2><p>突然发现华为云的服务器无法通过远程连接进行访问了，但是查看网络安全组的端口配置，明明已经配置了22端口开放，但是还是无法访问。</p><p><a href="https://support.huaweicloud.com/ecs_faq/zh-cn_topic_0105127983.html">无法登录到Linux云服务器怎么办?</a></p><h3 id="故障原因分析"><a class="markdownIt-Anchor" href="#故障原因分析"></a> 故障原因分析</h3><p>通过查看华为云服务器的监控图，发现cpu，内存都正常，但是硬盘占用100%</p><p>使用一键诊断工具得到的结果也是一切正常，怀疑是硬盘占用的问题？</p><p>使用华为云官网上的远程登录中的VNC登录模式，终于进入了远程连接。</p><p>进入之后使用 <code>docker ps -a</code> 和 <code>docker iamges -a</code> 发现，容器和镜像全部都消失不见了（之前也经常出现这个问题）。</p><p>使用 <code>df -h</code> 查看磁盘空间，发现已经全部占满。</p><p>使用以下命令查看占用空间最大的前十个文件夹</p><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">du</span> <span class="token parameter variable">-a</span> <span class="token parameter variable">-m</span> / <span class="token operator">|</span> <span class="token function">sort</span> <span class="token parameter variable">-n</span> <span class="token parameter variable">-r</span> <span class="token operator">|</span> <span class="token function">head</span> <span class="token parameter variable">-n</span> <span class="token number">10</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>发现 <code>var//lib/docker/overlay2</code> 这个文件夹占用了27个G(云服务器一共40个G)</p><p>更多内容可以参考下面这个文章：</p><p><a href="https://blog.csdn.net/zxxshaycormac/article/details/120433857">docker的overlay2中存的都是什么and如何清理/var/lib/docker/overlay2_docker overlay 是什么目录-CSDN博客</a></p><p>执行以下命令查看里面的文件夹大小占用情况</p><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">cd</span> /var/lib/docker/overlay2<span class="token function">du</span> <span class="token parameter variable">-sh</span> * <span class="token operator">|</span> <span class="token function">sort</span> <span class="token parameter variable">-n</span> <span class="token parameter variable">-r</span> <span class="token operator">|</span> <span class="token function">head</span> <span class="token parameter variable">-n</span> <span class="token number">10</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><p>发现全部都是528M大小的文件夹，怀疑是之前构建的多个冗余镜像但是没有删除的问题。</p><p>使用 <code>rm</code> 命令删除这些相同大小的文件夹</p><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 例如：</span><span class="token function">rm</span> <span class="token parameter variable">-rf</span> ae88cx7adm208vb9/ qpp745k28ckas9vlasd/<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><h3 id="解决-docker-容器镜像消失的问题"><a class="markdownIt-Anchor" href="#解决-docker-容器镜像消失的问题"></a> 解决 <code>docker</code> 容器镜像消失的问题</h3><p><a href="https://blog.csdn.net/deleteANDinsert/article/details/141568634">docker 镜像、容器消失解决办法。_docker升级后容器丢失-CSDN博客</a></p><p>之前碰到这个问题一直采用的是更换daemon.json的方法，这次也采用这个方法。</p><ul><li>修改/etc/docker/daemon.json，让daemon.json非法，然后执行systemctl restart docker，这个时候docker会报错</li><li>恢复正常的/etc/docker/daemon.json，然后执行systemctl daemon-reload，systemctl restart docker就可以了</li></ul><p>使用 <code>docker ps -a</code> 和 <code>docker images -a</code> 发现 <code>docker</code> 恢复了正常</p><p>这里删掉了之前做的音视频部署的项目</p><p><img src="https://zikcc.oss-cn-beijing.aliyuncs.com/img/202506101414418.png" alt="image-20250610141451341" /></p><p>发现删除这个镜像后docker又删除了一些东西，或许是 <code>overlay2</code> 中的？</p><p>采用以下命令让 docker 自动清理空间</p><p>请注意：一些未运行的容器且数据未挂载在本地的，运行以下命令后会数据丢失</p><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> system prune<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><ul><li>该指令默认会清除所有如下资源：<br /><strong>已停止的容器（container）</strong><br />未被任何容器所使用的卷（volume）<br />未被任何容器所关联的网络（network）<br />所有悬空镜像（image）。</li><li>指令默认只会清除悬空镜像，未被使用的镜像不会被删除。</li><li>添加 -a 或 --all 参数后，可以一并清除所有未使用的镜像和悬空镜像。</li><li>可以添加 -f 或 --force 参数用以忽略相关告警确认信息。</li><li>指令结尾处会显示总计清理释放的空间大小。</li></ul><h3 id="原因分析"><a class="markdownIt-Anchor" href="#原因分析"></a> 原因分析</h3><p>最后，使用ssh连接，发现已经能成功连接到服务器。</p><blockquote><p>引起docker容器消失，ssh连接故障的主要原因应该是硬盘空间不足。</p></blockquote>]]></content>
+      
+      
+      <categories>
+          
+          <category> 部署 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Linux </tag>
+            
+            <tag> Docker </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>每日知识点-11</title>
       <link href="/2025/06/10/%E6%AF%8F%E6%97%A5%E7%9F%A5%E8%AF%86%E7%82%B9-11/"/>
       <url>/2025/06/10/%E6%AF%8F%E6%97%A5%E7%9F%A5%E8%AF%86%E7%82%B9-11/</url>
