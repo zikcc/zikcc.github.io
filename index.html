@@ -67,7 +67,7 @@
   isHome: true,
   isHighlightShrink: false,
   isToc: false,
-  postUpdate: '2025-06-24 13:32:18',
+  postUpdate: '2025-06-24 13:35:04',
   postMainColor: '',
 }</script><noscript><style type="text/css">
   #nav {
@@ -295,7 +295,75 @@ POST请求
                 &quot;quality&quot;: [
                     128,
                     320,
-            ...</div><a class="blog-slider__button" href="2025/05/20/逆向破解加密爬取音乐实战/" alt="逆向破解加密爬取音乐实战">详情   </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" href="2025/06/09/Linux常用命令/" title="Linux常用命令"><img width="48" height="48" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/155231-1746604351fd80.jpg" alt="图片" onerror="this.src=undefined; this.onerror = null;"></a><div class="blog-slider__content"><span class="blog-slider__code">2025-06-09</span><a class="blog-slider__title" href="2025/06/09/Linux常用命令/" alt="Linux常用命令">Linux常用命令</a><div class="blog-slider__text"> Linux 常用命令
+            ...</div><a class="blog-slider__button" href="2025/05/20/逆向破解加密爬取音乐实战/" alt="逆向破解加密爬取音乐实战">详情   </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" href="2025/05/24/GDB-调试指南/" title="GDB_调试指南"><img width="48" height="48" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/092428-1744248268411a.jpg" alt="图片" onerror="this.src=undefined; this.onerror = null;"></a><div class="blog-slider__content"><span class="blog-slider__code">2025-05-24</span><a class="blog-slider__title" href="2025/05/24/GDB-调试指南/" alt="GDB_调试指南">GDB_调试指南</a><div class="blog-slider__text">以下是一份详细的 GDB 调试指南，涵盖基础到高级用法，适用于 Linux C/C++ 程序调试（包括多线程、核心转储分析等场景）。
+
+ 1. GDB 基础使用
+ 1.1 启动 GDB
+# 调试可执行文件
+gdb ./your_program
+
+# 调试正在运行的进程
+gdb -p &amp;lt;PID&gt;
+
+# 调试核心转储文件（coredump）
+gdb ./your_program core
+ 1.2 常用基础命令
+
+
+
+命令
+缩写
+作用
+
+
+
+
+run
+r
+启动程序
+
+
+break &amp;lt;location&amp;gt;
+b
+设置断点（如 b main, b file.cpp:10）
+
+
+continue
+c
+继续执行到下一个断点
+
+
+next
+n
+单步执行（不进入函数）
+
+
+step
+s
+单步执行（进入函数）
+
+
+print &amp;lt;var&amp;gt;
+p
+打印变量值
+
+
+backtrace
+bt
+查看调用栈
+
+
+quit
+q
+退出 GDB
+
+
+
+
+ 2. 断点管理
+ 2.1 设置断点
+b main          # 在 main 函数开头断点
+b file.cpp:20   # 在 fi ...</div><a class="blog-slider__button" href="2025/05/24/GDB-调试指南/" alt="GDB_调试指南">详情   </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" href="2025/06/09/Linux常用命令/" title="Linux常用命令"><img width="48" height="48" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/155231-1746604351fd80.jpg" alt="图片" onerror="this.src=undefined; this.onerror = null;"></a><div class="blog-slider__content"><span class="blog-slider__code">2025-06-09</span><a class="blog-slider__title" href="2025/06/09/Linux常用命令/" alt="Linux常用命令">Linux常用命令</a><div class="blog-slider__text"> Linux 常用命令
 以下是 Linux 常用命令的总结，涵盖文件操作、解压缩、软件安装、系统管理等常见场景：
 
  一、文件与目录操作
@@ -425,20 +493,7 @@ sed -i 's/download.docker.com/mirrors.aliyun.com\/docker-ce/g' /etc/yum.repos.d/
 yum makecache fast
  docker
 docker版本：
-CE( Community Edition)是社区版，简单理解是免费使用，提供小企业与 ...</div><a class="blog-slider__button" href="2025/05/19/nuxt3项目使用docker部署在华为云上/" alt="nuxt3项目使用docker部署在华为云上">详情   </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" href="2025/05/21/ubuntu22-04安装docker/" title="ubuntu22.04安装docker"><img width="48" height="48" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/124042-1745988042f382.jpg" alt="图片" onerror="this.src=undefined; this.onerror = null;"></a><div class="blog-slider__content"><span class="blog-slider__code">2025-05-21</span><a class="blog-slider__title" href="2025/05/21/ubuntu22-04安装docker/" alt="ubuntu22.04安装docker">ubuntu22.04安装docker</a><div class="blog-slider__text"> 安装docker
-虚拟机 ubuntu 22.04 安装 docker
- 准备工作
-#安装前先卸载操作系统默认安装的docker，
-sudo apt-get remove docker docker-engine docker.io containerd runc
-
-#安装必要支持
-sudo apt install apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release
- 添加源
-#添加 Docker 官方 GPG key （可能国内现在访问会存在问题）
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-
-# 阿里源（推荐使用阿里的gpg KEY）
-curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/ ...</div><a class="blog-slider__button" href="2025/05/21/ubuntu22-04安装docker/" alt="ubuntu22.04安装docker">详情   </a></div></div></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div><div id="topPostGroup"><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/26/自定义协议栈服务器开发导航/" title="自定义协议栈服务器开发导航"><span class="top-group-text">荐</span><img class="post_bg" alt="自定义协议栈服务器开发导航" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/185306-17401351860382.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/26/自定义协议栈服务器开发导航/" title="自定义协议栈服务器开发导航">自定义协议栈服务器开发导航</a></div></div><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/26/每日Linux-Cpp导航/" title="每日知识点导航"><span class="top-group-text">荐</span><img class="post_bg" alt="每日知识点导航" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/26/每日Linux-Cpp导航/" title="每日知识点导航">每日知识点导航</a></div></div><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/21/搭建Nginx-FLV流媒体服务器/" title="搭建Nginx-FLV流媒体服务器"><span class="top-group-text">荐</span><img class="post_bg" alt="搭建Nginx-FLV流媒体服务器" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/155539-1745913339936c.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/21/搭建Nginx-FLV流媒体服务器/" title="搭建Nginx-FLV流媒体服务器">搭建Nginx-FLV流媒体服务器</a></div></div><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/20/逆向破解加密爬取音乐实战/" title="逆向破解加密爬取音乐实战"><span class="top-group-text">荐</span><img class="post_bg" alt="逆向破解加密爬取音乐实战" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/092104-1746753664bc72.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/20/逆向破解加密爬取音乐实战/" title="逆向破解加密爬取音乐实战">逆向破解加密爬取音乐实战</a></div></div><div class="top-group-list-none"></div><div class="top-group-list-none"></div><div class="top-group-list-none"></div></div></div></div></div><script src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.js"></script><script>function initBlogSlider() {
+CE( Community Edition)是社区版，简单理解是免费使用，提供小企业与 ...</div><a class="blog-slider__button" href="2025/05/19/nuxt3项目使用docker部署在华为云上/" alt="nuxt3项目使用docker部署在华为云上">详情   </a></div></div></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div><div id="topPostGroup"><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/26/自定义协议栈服务器开发导航/" title="自定义协议栈服务器开发导航"><span class="top-group-text">荐</span><img class="post_bg" alt="自定义协议栈服务器开发导航" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/185306-17401351860382.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/26/自定义协议栈服务器开发导航/" title="自定义协议栈服务器开发导航">自定义协议栈服务器开发导航</a></div></div><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/26/每日Linux-Cpp导航/" title="每日知识点导航"><span class="top-group-text">荐</span><img class="post_bg" alt="每日知识点导航" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/221944-17439491842122.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/26/每日Linux-Cpp导航/" title="每日知识点导航">每日知识点导航</a></div></div><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/21/搭建Nginx-FLV流媒体服务器/" title="搭建Nginx-FLV流媒体服务器"><span class="top-group-text">荐</span><img class="post_bg" alt="搭建Nginx-FLV流媒体服务器" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/155539-1745913339936c.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/21/搭建Nginx-FLV流媒体服务器/" title="搭建Nginx-FLV流媒体服务器">搭建Nginx-FLV流媒体服务器</a></div></div><div class="top-group-list-item"><div class="post_cover left_radius"><a href="2025/05/20/逆向破解加密爬取音乐实战/" title="逆向破解加密爬取音乐实战"><span class="top-group-text">荐</span><img class="post_bg" alt="逆向破解加密爬取音乐实战" src="https://zikcc.oss-cn-beijing.aliyuncs.com/blog_img/092104-1746753664bc72.jpg" onerror="this.src=undefined; this.onerror = null;"></a></div><div class="top-group-info"><a class="article-title" href="2025/05/20/逆向破解加密爬取音乐实战/" title="逆向破解加密爬取音乐实战">逆向破解加密爬取音乐实战</a></div></div><div class="top-group-list-none"></div><div class="top-group-list-none"></div><div class="top-group-list-none"></div></div></div></div></div><script src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.js"></script><script>function initBlogSlider() {
   var swiper = new Swiper(".blog-slider", {
     passiveListeners: true,
     spaceBetween: 30,
@@ -495,15 +550,15 @@ setTimeout(()=>{
       </a>
     </div>
     
-    <div class="catalog-list-item" id="/categories/视觉/">
-      <a href="/categories/视觉/">
-        视觉
-      </a>
-    </div>
-    
     <div class="catalog-list-item" id="/categories/面试/">
       <a href="/categories/面试/">
         面试
+      </a>
+    </div>
+    
+    <div class="catalog-list-item" id="/categories/视觉/">
+      <a href="/categories/视觉/">
+        视觉
       </a>
     </div>
     
