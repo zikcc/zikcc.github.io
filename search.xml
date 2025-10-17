@@ -1517,9 +1517,9 @@
             
             <tag> Java </tag>
             
-            <tag> TFlite </tag>
-            
             <tag> Pytorch </tag>
+            
+            <tag> TFlite </tag>
             
         </tags>
       
@@ -1577,9 +1577,9 @@
       
         <tags>
             
-            <tag> Pytorch </tag>
-            
             <tag> Cuda </tag>
+            
+            <tag> Pytorch </tag>
             
         </tags>
       
